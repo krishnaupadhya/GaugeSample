@@ -95,8 +95,8 @@ public class SpeedView extends Speedometer {
 
         float markH = getViewSizePa() / 22f;
         markPath.reset();
-        markPath.moveTo(getSize() * .5f, getPadding());
-        markPath.lineTo(getSize() * .5f, markH + getPadding());
+        markPath.moveTo(getSize() * .5f, (getSize()/2));
+        markPath.lineTo(getSize() * .5f, markH -getSize());
         markPaint.setStrokeWidth(markH);
         markPaint.setColor(Color.WHITE);
 
@@ -124,7 +124,7 @@ public class SpeedView extends Speedometer {
 
         c.save();
         c.rotate(90f + getStartDegree(), getSize() * .5f, getSize() * .5f);
-        float everyDegree = (getEndDegree() - getStartDegree()) * .195f;
+        float everyDegree = (getEndDegree() - getStartDegree()) * .196f;
         for (float i = getStartDegree(); i < getEndDegree() - (2f * everyDegree); i += everyDegree) {
             c.rotate(everyDegree, getSize() * .5f, getSize() * .5f);
             c.drawPath(markPath, markPaint);
