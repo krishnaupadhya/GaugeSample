@@ -78,13 +78,24 @@ public abstract class Gauge extends View {
     private int heightPa = 0;
 
     /** low speed area */
-    private int lowSpeedPercent = 60;
+    private int lowSpeedPercent = 20;
+    /** low speed area */
+    private int lowMidSpeedPercent = 40;
     /** medium speed area */
-    private int mediumSpeedPercent = 87;
+    private int mediumSpeedPercent = 60;
+    /** medium speed area */
+    private int mediumHighSpeedPercent = 80;
+
+
 
     public static final byte LOW_SECTION = 1;
+    public static final byte LOW_MID_SECTION = 5;
     public static final byte MEDIUM_SECTION = 2;
+    public static final byte MID_HIGH_SECTION = 4;
     public static final byte HIGH_SECTION = 3;
+
+
+
     private byte section = LOW_SECTION;
 
     private boolean speedometerTextRightToLeft = false;
@@ -1156,6 +1167,36 @@ public abstract class Gauge extends View {
     }
 
     /**
+     * @return the long of low speed area (low section) as percent.
+     */
+    public int getLowMidSpeedPercent() {
+        return lowMidSpeedPercent;
+    }
+
+    /**
+     * @return the long of low speed area (low section) as Offset [0, 1].
+     */
+    public float getLowMidSpeedOffset() {
+        return lowMidSpeedPercent *.01f;
+    }
+
+    /**
+     * to change low speed area (low section).
+     * @param lowMidSpeedPercent the long of low speed area as percent,
+     *                        must be between {@code [0,100]}.
+     * @throws IllegalArgumentException if {@code lowSpeedPercent} out of range.
+     * @throws IllegalArgumentException if {@code lowSpeedPercent > mediumSpeedPercent}.
+     */
+    public void setLowMidSpeedPercent(int lowMidSpeedPercent) {
+        this.lowMidSpeedPercent = lowMidSpeedPercent;
+        checkSpeedometerPercent();
+        if (!attachedToWindow)
+            return;
+        updateBackgroundBitmap();
+        invalidate();
+    }
+
+    /**
      * @return the long of Medium speed area (Medium section) as percent.
      */
     public int getMediumSpeedPercent() {
@@ -1178,6 +1219,36 @@ public abstract class Gauge extends View {
      */
     public void setMediumSpeedPercent(int mediumSpeedPercent) {
         this.mediumSpeedPercent = mediumSpeedPercent;
+        checkSpeedometerPercent();
+        if (!attachedToWindow)
+            return;
+        updateBackgroundBitmap();
+        invalidate();
+    }
+
+    /**
+     * @return the long of Medium speed area (Medium section) as percent.
+     */
+    public int getMediumHighSpeedPercent() {
+        return mediumHighSpeedPercent;
+    }
+
+    /**
+     * @return the long of Medium speed area (Medium section) as Offset [0, 1].
+     */
+    public float getMediumHighSpeedOffset() {
+        return mediumHighSpeedPercent *.01f;
+    }
+
+    /**
+     * to change medium speed area (medium section).
+     * @param mediumHighSpeedPercent the long of medium speed area as percent,
+     *                        must be between {@code [0,100]}.
+     * @throws IllegalArgumentException if {@code mediumSpeedPercent} out of range.
+     * @throws IllegalArgumentException if {@code mediumSpeedPercent < lowSpeedPercent}.
+     */
+    public void setMediumHighSpeedPercent(int mediumHighSpeedPercent) {
+        this.mediumHighSpeedPercent = mediumHighSpeedPercent;
         checkSpeedometerPercent();
         if (!attachedToWindow)
             return;
@@ -1268,6 +1339,16 @@ public abstract class Gauge extends View {
     }
 
     /**
+     * check if correct speed in <b>Low Speed Section</b>.
+     * @return true if correct speed in Low Speed Section.
+     *
+     * @see #setLowSpeedPercent(int)
+     */
+    public boolean isInLowMidSection() {
+        return (maxSpeed - minSpeed)*getLowMidSpeedOffset() + minSpeed >= currentSpeed && !isInLowSection();
+    }
+
+    /**
      * check if correct speed in <b>Medium Speed Section</b>.
      * @return true if correct speed in Medium Speed Section
      * , and it is not in Low Speed Section.
@@ -1275,7 +1356,19 @@ public abstract class Gauge extends View {
      * @see #setMediumSpeedPercent(int)
      */
     public boolean isInMediumSection() {
-        return (maxSpeed - minSpeed)*getMediumSpeedOffset() + minSpeed >= currentSpeed && !isInLowSection();
+        return (maxSpeed - minSpeed)*getMediumSpeedOffset() + minSpeed >= currentSpeed && !isInLowMidSection();
+    }
+
+
+    /**
+     * check if correct speed in <b>Medium Speed Section</b>.
+     * @return true if correct speed in Medium Speed Section
+     * , and it is not in Low Speed Section.
+     *
+     * @see #setMediumSpeedPercent(int)
+     */
+    public boolean isInMediumHighSection() {
+        return (maxSpeed - minSpeed)*getMediumHighSpeedOffset() + minSpeed >= currentSpeed && !isInMediumSection();
     }
 
     /**
@@ -1284,7 +1377,7 @@ public abstract class Gauge extends View {
      * , and it is not in Low Speed Section or Medium Speed Section.
      */
     public boolean isInHighSection() {
-        return currentSpeed > (maxSpeed - minSpeed)*getMediumSpeedOffset() + minSpeed;
+        return currentSpeed > (maxSpeed - minSpeed)*getMediumHighSpeedOffset() + minSpeed;
     }
 
     /**
@@ -1294,8 +1387,12 @@ public abstract class Gauge extends View {
     public byte getSection() {
         if (isInLowSection())
             return LOW_SECTION;
+        else if (isInLowMidSection())
+            return LOW_MID_SECTION;
         else if (isInMediumSection())
             return MEDIUM_SECTION;
+        else if (isInMediumHighSection())
+            return MID_HIGH_SECTION;
         else
             return HIGH_SECTION;
     }

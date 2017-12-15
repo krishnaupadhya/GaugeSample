@@ -83,7 +83,7 @@ public class SpeedView extends Speedometer {
         drawSpeedUnitText(canvas);
 
         drawIndicator(canvas);
-        canvas.drawCircle(getSize() *.5f, getSize() *.5f, getWidthPa()/12f, circlePaint);
+        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 12f, circlePaint);
 
         drawNotes(canvas);
     }
@@ -93,29 +93,40 @@ public class SpeedView extends Speedometer {
         Canvas c = createBackgroundBitmapCanvas();
         initDraw();
 
-        float markH = getViewSizePa()/28f;
+        float markH = getViewSizePa() / 22f;
         markPath.reset();
-        markPath.moveTo(getSize() *.5f, getPadding());
-        markPath.lineTo(getSize() *.5f, markH + getPadding());
-        markPaint.setStrokeWidth(markH/3f);
+        markPath.moveTo(getSize() * .5f, getPadding());
+        markPath.lineTo(getSize() * .5f, markH + getPadding());
+        markPaint.setStrokeWidth(markH);
+        markPaint.setColor(Color.WHITE);
 
-        float risk = getSpeedometerWidth() *.5f + getPadding();
-        speedometerRect.set(risk, risk, getSize() -risk, getSize() -risk);
+        float risk = getSpeedometerWidth() * .5f + getPadding();
+        speedometerRect.set(risk, risk, getSize() - risk, getSize() - risk);
 
         speedometerPaint.setColor(getHighSpeedColor());
-        c.drawArc(speedometerRect, getStartDegree(), getEndDegree()- getStartDegree(), false, speedometerPaint);
+        c.drawArc(speedometerRect, getStartDegree(), getEndDegree() - getStartDegree(), false, speedometerPaint);
+
+        speedometerPaint.setColor(getMediumHighSpeedColor());
+        c.drawArc(speedometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getMediumHighSpeedOffset(), false, speedometerPaint);
+
         speedometerPaint.setColor(getMediumSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree()- getStartDegree())*getMediumSpeedOffset(), false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getMediumSpeedOffset(), false, speedometerPaint);
+
+        speedometerPaint.setColor(getLowMidSpeedColor());
+        c.drawArc(speedometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getLowMidSpeedOffset(), false, speedometerPaint);
+
         speedometerPaint.setColor(getLowSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree()- getStartDegree())*getLowSpeedOffset(), false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getLowSpeedOffset(), false, speedometerPaint);
 
         c.save();
-        c.rotate(90f + getStartDegree(), getSize() *.5f, getSize() *.5f);
-        float everyDegree = (getEndDegree() - getStartDegree()) * .111f;
-        for (float i = getStartDegree(); i < getEndDegree()-(2f*everyDegree); i+=everyDegree) {
-            c.rotate(everyDegree, getSize() *.5f, getSize() *.5f);
+        c.rotate(90f + getStartDegree(), getSize() * .5f, getSize() * .5f);
+        float everyDegree = (getEndDegree() - getStartDegree()) * .195f;
+        for (float i = getStartDegree(); i < getEndDegree() - (2f * everyDegree); i += everyDegree) {
+            c.rotate(everyDegree, getSize() * .5f, getSize() * .5f);
             c.drawPath(markPath, markPaint);
         }
         c.restore();
@@ -133,6 +144,7 @@ public class SpeedView extends Speedometer {
     /**
      * change the color of the center circle (if exist),
      * <b>this option is not available for all Speedometers</b>.
+     *
      * @param centerCircleColor new color.
      */
     public void setCenterCircleColor(int centerCircleColor) {

@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 
 
+import com.sample.food.gaugesample.Indicators.ImageIndicator;
 import com.sample.food.gaugesample.Indicators.Indicator;
 import com.sample.food.gaugesample.Indicators.NoIndicator;
 import com.sample.food.gaugesample.note.Note;
@@ -30,9 +31,11 @@ public abstract class Speedometer extends Gauge {
     private float speedometerWidth = dpTOpx(30f);
 
     private int markColor = Color.WHITE
-            , lowSpeedColor = Color.GREEN
-            , mediumSpeedColor = Color.YELLOW
-            , highSpeedColor = Color.RED
+            , lowSpeedColor = getResources().getColor(R.color.low_color)
+            , lowMidSpeedColor = getResources().getColor(R.color.low_mid_color)
+            , mediumSpeedColor =  getResources().getColor(R.color.mid_color)
+            , highMidSpeedColor =  getResources().getColor(R.color.mid_high_color)
+            , highSpeedColor =  getResources().getColor(R.color.high_color)
             , backgroundCircleColor = Color.WHITE;
 
     private int startDegree = 180, endDegree = 180 + 180;
@@ -89,6 +92,8 @@ public abstract class Speedometer extends Gauge {
         lowSpeedColor = a.getColor(R.styleable.Speedometer_sv_lowSpeedColor, lowSpeedColor);
         mediumSpeedColor = a.getColor(R.styleable.Speedometer_sv_mediumSpeedColor, mediumSpeedColor);
         highSpeedColor = a.getColor(R.styleable.Speedometer_sv_highSpeedColor, highSpeedColor);
+        lowMidSpeedColor=a.getColor(R.styleable.Speedometer_sv_lowMidSpeedColor,lowMidSpeedColor);
+        highMidSpeedColor=a.getColor(R.styleable.Speedometer_sv_mediumHighSpeedColor,highMidSpeedColor);
         backgroundCircleColor = a.getColor(R.styleable.Speedometer_sv_backgroundCircleColor, backgroundCircleColor);
         speedometerWidth = a.getDimension(R.styleable.Speedometer_sv_speedometerWidth, speedometerWidth);
         startDegree = a.getInt(R.styleable.Speedometer_sv_startDegree, startDegree);
@@ -281,6 +286,22 @@ public abstract class Speedometer extends Gauge {
         invalidate();
     }
 
+    public int getLowMidSpeedColor() {
+        return lowMidSpeedColor;
+    }
+
+    /**
+     * change the color of Low Section.
+     * @param lowMidSpeedColor new color.
+     */
+    public void setLowMidSpeedColor(int lowMidSpeedColor) {
+        this.lowMidSpeedColor = lowMidSpeedColor;
+        if (!isAttachedToWindow())
+            return;
+        updateBackgroundBitmap();
+        invalidate();
+    }
+
     public int getMediumSpeedColor() {
         return mediumSpeedColor;
     }
@@ -291,6 +312,22 @@ public abstract class Speedometer extends Gauge {
      */
     public void setMediumSpeedColor(int mediumSpeedColor) {
         this.mediumSpeedColor = mediumSpeedColor;
+        if (!isAttachedToWindow())
+            return;
+        updateBackgroundBitmap();
+        invalidate();
+    }
+
+    public int getMediumHighSpeedColor() {
+        return highMidSpeedColor;
+    }
+
+    /**
+     * change the color of Medium Section.
+     * @param highMidSpeedColor new color.
+     */
+    public void setMediumHighSpeedColor(int highMidSpeedColor) {
+        this.highMidSpeedColor = highMidSpeedColor;
         if (!isAttachedToWindow())
             return;
         updateBackgroundBitmap();

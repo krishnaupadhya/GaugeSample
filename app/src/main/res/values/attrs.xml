@@ -29,6 +29,8 @@
         <attr name="sv_trembleDuration" format="integer" />
         <attr name="sv_lowSpeedPercent" format="integer" />
         <attr name="sv_mediumSpeedPercent" format="integer" />
+        <attr name="sv_lowMidSpeedPercent" format="integer" />
+        <attr name="sv_mediumHighSpeedPercent" format="integer" />
         <attr name="sv_textRightToLeft" format="boolean" />
 
         <attr name="sv_minSpeed" format="integer" />
@@ -67,6 +69,8 @@
         <attr name="sv_lowSpeedColor" format="color" />
         <attr name="sv_mediumSpeedColor" format="color" />
         <attr name="sv_highSpeedColor" format="color" />
+        <attr name="sv_lowMidSpeedColor" format="color" />
+        <attr name="sv_mediumHighSpeedColor" format="color" />
         <attr name="sv_backgroundCircleColor" format="color" />
         <attr name="sv_speedometerWidth" format="dimension" />
 
