@@ -2,13 +2,18 @@ package com.sample.food.gaugesample;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 
+import com.sample.food.gaugesample.Indicators.ImageIndicator;
 import com.sample.food.gaugesample.Indicators.NormalIndicator;
 
 /**
@@ -17,11 +22,31 @@ import com.sample.food.gaugesample.Indicators.NormalIndicator;
  */
 public class SpeedView extends Speedometer {
 
-    private Path markPath = new Path();
     private Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG),
             speedometerPaint = new Paint(Paint.ANTI_ALIAS_FLAG),
             markPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private RectF speedometerRect = new RectF();
+    private float ARC_PADDING = 5f;
+    private float riskPosition;
+    private float riskPercentage = 0f;
+    /**
+     * low speed area
+     */
+    private int lowSpeedPercent = 20;
+    /**
+     * low speed area
+     */
+    private int lowMidSpeedPercent = 40;
+    /**
+     * medium speed area
+     */
+    private int mediumSpeedPercent = 60;
+    /**
+     * medium speed area
+     */
+    private int mediumHighSpeedPercent = 80;
+
+    private int highSpeedPercent = 100;
 
     public SpeedView(Context context) {
         this(context, null);
@@ -29,12 +54,14 @@ public class SpeedView extends Speedometer {
 
     public SpeedView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
+
     }
 
     public SpeedView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
         initAttributeSet(context, attrs);
+
     }
 
     @Override
@@ -66,7 +93,6 @@ public class SpeedView extends Speedometer {
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
-
         updateBackgroundBitmap();
     }
 
@@ -80,12 +106,16 @@ public class SpeedView extends Speedometer {
         super.onDraw(canvas);
         initDraw();
 
-        drawSpeedUnitText(canvas);
+        //drawSpeedUnitText(canvas);
 
         drawIndicator(canvas);
-        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 12f, circlePaint);
 
-        drawNotes(canvas);
+
+//        canvas.drawBitmap(bitmap, (this.getWidth() / 2) - riskPosition, riskPosition, null);
+        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 12f, circlePaint);
+        // canvas.drawArc(speedometerRect,180,180+360,true,circlePaint);
+
+        //drawNotes(canvas);
     }
 
     @Override
@@ -93,52 +123,136 @@ public class SpeedView extends Speedometer {
         Canvas c = createBackgroundBitmapCanvas();
         initDraw();
 
-        float markH = getViewSizePa() / 22f;
-        markPath.reset();
-        markPath.moveTo(getSize() * .5f, (getSize()/2));
-        markPath.lineTo(getSize() * .5f, markH -getSize());
-        markPaint.setStrokeWidth(markH);
-        markPaint.setColor(Color.WHITE);
-
-        float risk = getSpeedometerWidth() * .5f + getPadding();
-        speedometerRect.set(risk, risk, getSize() - risk, getSize() - risk);
+        riskPosition = getSpeedometerWidth() * .5f + getWidth() / 8;
+        speedometerRect.set(riskPosition, riskPosition, getSize() - riskPosition, getSize() - riskPosition);
 
         speedometerPaint.setColor(getHighSpeedColor());
         c.drawArc(speedometerRect, getStartDegree(), getEndDegree() - getStartDegree(), false, speedometerPaint);
+
+        speedometerPaint.setColor(Color.WHITE);
+        c.drawArc(speedometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getMediumHighSpeedOffset() + ARC_PADDING, false, speedometerPaint);
 
         speedometerPaint.setColor(getMediumHighSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
                 , (getEndDegree() - getStartDegree()) * getMediumHighSpeedOffset(), false, speedometerPaint);
 
+        speedometerPaint.setColor(Color.WHITE);
+        c.drawArc(speedometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getMediumSpeedOffset() + ARC_PADDING, false, speedometerPaint);
+
         speedometerPaint.setColor(getMediumSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
                 , (getEndDegree() - getStartDegree()) * getMediumSpeedOffset(), false, speedometerPaint);
+
+        speedometerPaint.setColor(Color.WHITE);
+        c.drawArc(speedometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getLowMidSpeedOffset() + ARC_PADDING, false, speedometerPaint);
 
         speedometerPaint.setColor(getLowMidSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
                 , (getEndDegree() - getStartDegree()) * getLowMidSpeedOffset(), false, speedometerPaint);
 
+        speedometerPaint.setColor(Color.WHITE);
+        c.drawArc(speedometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getLowSpeedOffset() + ARC_PADDING, false, speedometerPaint);
+
+
         speedometerPaint.setColor(getLowSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
                 , (getEndDegree() - getStartDegree()) * getLowSpeedOffset(), false, speedometerPaint);
-
+        updateTextView(c, riskPosition);
+        //updateIndicator(c);
         c.save();
-        c.rotate(90f + getStartDegree(), getSize() * .5f, getSize() * .5f);
-        float everyDegree = (getEndDegree() - getStartDegree()) * .196f;
-        for (float i = getStartDegree(); i < getEndDegree() - (2f * everyDegree); i += everyDegree) {
-            c.rotate(everyDegree, getSize() * .5f, getSize() * .5f);
-            c.drawPath(markPath, markPaint);
-        }
-        c.restore();
 
-        if (getTickNumber() > 0)
-            drawTicks(c);
-        else
-            drawDefMinMaxSpeedPosition(c);
     }
 
-    public int getCenterCircleColor() {
-        return circlePaint.getColor();
+    private void updateIndicator(Canvas canvas) {
+//        if (canvas.getWidth() > 0 && canvas.getHeight() > 0) {
+//            ImageIndicator imageIndicator = new ImageIndicator(getContext(), R.drawable.group_2
+//                    , (int) dpTOpx(getWidth()), (int) dpTOpx(getHeight()));
+//            setIndicator(imageIndicator);
+//        }
+
+       /* Bitmap srcBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.group_2);
+        riskPosition = getSpeedometerWidth() * .5f + getWidth() / 12;
+
+        // Initialize a new Matrix instance
+        matrix = new Matrix();
+
+        matrix.setRotate(
+                -45, // degrees
+                srcBitmap.getWidth() / 2, // px
+                srcBitmap.getHeight() / 2 // py
+        );
+
+        // Draw the bitmap at the center position of the canvas both vertically and horizontally
+        matrix.postTranslate(
+                canvas.getWidth() / 2 - srcBitmap.getWidth() / 2,
+                canvas.getHeight() / 2 - srcBitmap.getHeight() / 2
+        );
+
+        canvas.drawBitmap(
+                srcBitmap, // Bitmap
+                matrix, // Matrix
+                circlePaint // Paint
+        );*/
+    }
+
+    private void updateTextView(Canvas c, float risk) {
+        Paint paint = new Paint();
+        paint.setColor(Color.TRANSPARENT);
+        paint.setStyle(Paint.Style.FILL);
+        c.drawPaint(paint);
+
+        paint.setColor(Color.DKGRAY);
+        paint.setTextSize(getContext().getResources().getDimensionPixelSize(R.dimen.custom_text_size));
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        c.drawText(getContext().getString(R.string.low_risk), risk - (0.9f * risk), risk * 2, paint);
+        c.drawText(getContext().getString(R.string.low_mid_risk), risk - (0.7f * risk), risk - (0.1f * risk), paint);
+        c.drawText(getContext().getString(R.string.mid_risk), risk * 2.3f, risk - (0.5f * risk), paint);
+        c.drawText(getContext().getString(R.string.mid_high_risk), risk * 4f, risk, paint);
+        c.drawText(getContext().getString(R.string.high_risk), risk * 4.85f, risk * 2, paint);
+        if (riskPercentage < lowSpeedPercent) {
+            paint.setColor(getResources().getColor(R.color.colorAccent));
+            c.drawText(getContext().getString(R.string.low_risk), risk - (0.9f * risk), risk * 2, paint);
+        } else if (riskPercentage < lowMidSpeedPercent) {
+            paint.setColor(getResources().getColor(R.color.colorAccent));
+            c.drawText(getContext().getString(R.string.low_mid_risk), risk - (0.7f * risk), risk - (0.1f * risk), paint);
+        } else if (riskPercentage < mediumSpeedPercent) {
+            paint.setColor(getResources().getColor(R.color.colorAccent));
+            c.drawText(getContext().getString(R.string.mid_risk), risk * 2.3f, risk - (0.5f * risk), paint);
+        } else if (riskPercentage < mediumHighSpeedPercent) {
+            paint.setColor(getResources().getColor(R.color.colorAccent));
+            c.drawText(getContext().getString(R.string.mid_high_risk), risk * 4f, risk, paint);
+        } else {
+            paint.setColor(getResources().getColor(R.color.colorAccent));
+            c.drawText(getContext().getString(R.string.high_risk), risk * 4.85f, risk * 2, paint);
+        }
+    }
+
+    @Override
+    public void speedTo(float speed) {
+        setRiskPercentage(speed);
+        updateBackgroundBitmap();
+        super.speedTo(riskPercentage);
+
+
+    }
+
+    private void setRiskPercentage(float speed) {
+        if (speed < lowSpeedPercent)
+            this.riskPercentage = 10f;
+        else if (speed < lowMidSpeedPercent)
+            this.riskPercentage = 30f;
+        else if (speed < mediumSpeedPercent)
+            this.riskPercentage = 50f;
+        else if (speed < mediumHighSpeedPercent)
+            this.riskPercentage = 70f;
+        else if (speed < highSpeedPercent)
+            this.riskPercentage = 90f;
+        else
+            this.riskPercentage = 100f;
     }
 
     /**

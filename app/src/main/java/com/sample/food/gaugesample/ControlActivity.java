@@ -10,6 +10,8 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.sample.food.gaugesample.Indicators.ImageIndicator;
+
 import java.util.Locale;
 
 public class ControlActivity extends AppCompatActivity {
@@ -57,6 +59,15 @@ public class ControlActivity extends AppCompatActivity {
         });
 
         speedView.speedTo(50);
+        if (speedView.getWidth() > 0 && speedView.getHeight() > 0) {
+            ImageIndicator imageIndicator = new ImageIndicator(this, R.drawable.group_2
+                    , (int) speedView.dpTOpx(speedView.getWidth()), (int) speedView.dpTOpx(speedView.getHeight()));
+            speedView.setIndicator(imageIndicator);
+        }
+    }
+
+    public void imageIndicator(View view) {
+
     }
 
     public void setSpeed(View view) {
@@ -68,8 +79,7 @@ public class ControlActivity extends AppCompatActivity {
             int max = Integer.parseInt(maxSpeed.getText().toString());
             seekBar.setMax(max);
             speedView.setMaxSpeed(max);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             maxSpeed.setError(e.getMessage());
         }
     }
@@ -78,8 +88,7 @@ public class ControlActivity extends AppCompatActivity {
         try {
             float width = Float.parseFloat(speedometerWidth.getText().toString());
             speedView.setSpeedometerWidth(width);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             speedometerWidth.setError(e.getMessage());
         }
     }
@@ -89,15 +98,14 @@ public class ControlActivity extends AppCompatActivity {
         try {
             float size = Float.parseFloat(speedTextSize.getText().toString());
             speedView.setSpeedTextSize(size);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             speedTextSize.setError(e.getMessage());
         }
     }
 
     public void setIndicatorColor(View view) {
         EditText indicatorColor = (EditText) findViewById(R.id.indicatorColor);
-        try{
+        try {
             speedView.setIndicatorColor(Color.parseColor(indicatorColor.getText().toString()));
         } catch (Exception e) {
             indicatorColor.setError(e.getMessage());
@@ -106,7 +114,7 @@ public class ControlActivity extends AppCompatActivity {
 
     public void setCenterCircleColor(View view) {
         EditText centerCircleColor = (EditText) findViewById(R.id.centerCircleColor);
-        try{
+        try {
             speedView.setCenterCircleColor(Color.parseColor(centerCircleColor.getText().toString()));
         } catch (Exception e) {
             centerCircleColor.setError(e.getMessage());
@@ -115,7 +123,7 @@ public class ControlActivity extends AppCompatActivity {
 
     public void setLowSpeedColor(View view) {
         EditText lowSpeedColor = (EditText) findViewById(R.id.lowSpeedColor);
-        try{
+        try {
             speedView.setLowSpeedColor(Color.parseColor(lowSpeedColor.getText().toString()));
         } catch (Exception e) {
             lowSpeedColor.setError(e.getMessage());
@@ -124,7 +132,7 @@ public class ControlActivity extends AppCompatActivity {
 
     public void setMediumSpeedColor(View view) {
         EditText mediumSpeedColor = (EditText) findViewById(R.id.mediumSpeedColor);
-        try{
+        try {
             speedView.setMediumSpeedColor(Color.parseColor(mediumSpeedColor.getText().toString()));
         } catch (Exception e) {
             mediumSpeedColor.setError(e.getMessage());
@@ -133,7 +141,7 @@ public class ControlActivity extends AppCompatActivity {
 
     public void setHighSpeedColor(View view) {
         EditText highSpeedColor = (EditText) findViewById(R.id.highSpeedColor);
-        try{
+        try {
             speedView.setHighSpeedColor(Color.parseColor(highSpeedColor.getText().toString()));
         } catch (Exception e) {
             highSpeedColor.setError(e.getMessage());

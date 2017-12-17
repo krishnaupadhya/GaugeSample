@@ -142,12 +142,12 @@ public abstract class Gauge extends View {
     }
 
     private void init() {
-        textPaint.setColor(Color.BLACK);
+        textPaint.setColor(Color.GREEN);
         textPaint.setTextSize(dpTOpx(10f));
         textPaint.setTextAlign(Paint.Align.CENTER);
-        speedTextPaint.setColor(Color.BLACK);
+        speedTextPaint.setColor(Color.RED);
         speedTextPaint.setTextSize(dpTOpx(18f));
-        unitTextPaint.setColor(Color.BLACK);
+        unitTextPaint.setColor(Color.BLUE);
         unitTextPaint.setTextSize(dpTOpx(15f));
 
         if (Build.VERSION.SDK_INT >= 11) {
@@ -1043,7 +1043,7 @@ public abstract class Gauge extends View {
      * @param textSize new size in pixel.
      *
      * @see #dpTOpx(float)
-     * @see #setSpeedTextSize(float)
+     * @see #setSpeedTextSize(float)speedTo
      * @see #setUnitTextSize(float)
      */
     public void setTextSize(float textSize) {
