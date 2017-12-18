@@ -27,7 +27,6 @@ import java.util.Locale;
 @SuppressWarnings("unused")
 public abstract class Gauge extends View {
 
-    protected TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private TextPaint speedTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG),
             unitTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     /**
@@ -161,13 +160,6 @@ public abstract class Gauge extends View {
     }
 
     private void init() {
-        textPaint.setColor(Color.GREEN);
-        textPaint.setTextSize(dpTOpx(10f));
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        speedTextPaint.setColor(Color.RED);
-        speedTextPaint.setTextSize(dpTOpx(18f));
-        unitTextPaint.setColor(Color.BLUE);
-        unitTextPaint.setTextSize(dpTOpx(15f));
 
         if (Build.VERSION.SDK_INT >= 11) {
             speedAnimator = ValueAnimator.ofFloat(0f, 1f);
@@ -199,8 +191,6 @@ public abstract class Gauge extends View {
 
         maxSpeed = a.getInt(R.styleable.Gauge_sv_maxSpeed, maxSpeed);
         minSpeed = a.getInt(R.styleable.Gauge_sv_minSpeed, minSpeed);
-        textPaint.setColor(a.getColor(R.styleable.Gauge_sv_textColor, textPaint.getColor()));
-        textPaint.setTextSize(a.getDimension(R.styleable.Gauge_sv_textSize, textPaint.getTextSize()));
         speedTextPaint.setColor(a.getColor(R.styleable.Gauge_sv_speedTextColor, speedTextPaint.getColor()));
         speedTextPaint.setTextSize(a.getDimension(R.styleable.Gauge_sv_speedTextSize, speedTextPaint.getTextSize()));
         unitTextPaint.setColor(a.getColor(R.styleable.Gauge_sv_unitTextColor, unitTextPaint.getColor()));
@@ -215,15 +205,7 @@ public abstract class Gauge extends View {
         unitUnderSpeedText = a.getBoolean(R.styleable.Gauge_sv_unitUnderSpeedText, unitUnderSpeedText);
         unitSpeedInterval = a.getDimension(R.styleable.Gauge_sv_unitSpeedInterval, unitSpeedInterval);
         speedTextPadding = a.getDimension(R.styleable.Gauge_sv_speedTextPadding, speedTextPadding);
-        String speedTypefacePath = a.getString(R.styleable.Gauge_sv_speedTextTypeface);
-        if (speedTypefacePath != null)
-            setSpeedTextTypeface(Typeface.createFromAsset(getContext().getAssets(), speedTypefacePath));
-        String typefacePath = a.getString(R.styleable.Gauge_sv_textTypeface);
-        if (typefacePath != null)
-            setTextTypeface(Typeface.createFromAsset(getContext().getAssets(), typefacePath));
         int position = a.getInt(R.styleable.Gauge_sv_speedTextPosition, -1);
-//        if (position != -1)
-//            setSpeedTextPosition(Position.values()[position]);
         byte format = (byte) a.getInt(R.styleable.Gauge_sv_speedTextFormat, -1);
         if (format != -1)
             setSpeedTextFormat(format);
@@ -241,7 +223,6 @@ public abstract class Gauge extends View {
             speedTextPaint.setTextAlign(Paint.Align.LEFT);
             unitTextPaint.setTextAlign(Paint.Align.LEFT);
         }
-        recreateSpeedUnitTextBitmap();
     }
 
     @Override
@@ -320,72 +301,6 @@ public abstract class Gauge extends View {
             canvas.drawBitmap(backgroundBitmap, 0f, 0f, backgroundBitmapPaint);
     }
 
-    /**
-     * fixable method to create {@link #speedUnitTextBitmap}
-     * to avoid create it every frame in {@code onDraw} method.
-     */
-    private void recreateSpeedUnitTextBitmap() {
-        speedUnitTextBitmap = Bitmap.createBitmap((int) getMaxWidthForSpeedUnitText()
-                , (int) getSpeedUnitTextHeight(), Bitmap.Config.ARGB_8888);
-    }
-
-    /**
-     * clear {@link #speedUnitTextBitmap} and draw speed and unit Text
-     * taking into consideration {@link #speedometerTextRightToLeft} and {@link #unitUnderSpeedText}.
-     *
-     * @return {@link #speedUnitTextBitmap} after update.
-     */
-    private Bitmap updateSpeedUnitTextBitmap() {
-        speedUnitTextBitmap.eraseColor(Color.TRANSPARENT);
-        Canvas c = new Canvas(speedUnitTextBitmap);
-
-        if (unitUnderSpeedText) {
-            c.drawText(getSpeedText(), speedUnitTextBitmap.getWidth() * .5f
-                    , speedTextPaint.getTextSize(), speedTextPaint);
-            c.drawText(unit, speedUnitTextBitmap.getWidth() * .5f
-                    , speedTextPaint.getTextSize() + unitSpeedInterval + unitTextPaint.getTextSize(), unitTextPaint);
-            return speedUnitTextBitmap;
-        } else {
-            float speedX;
-            float unitX;
-            if (isSpeedometerTextRightToLeft()) {
-                speedX = unitTextPaint.measureText(unit) + unitSpeedInterval;
-                unitX = 0f;
-            } else {
-                speedX = 0f;
-                unitX = speedTextPaint.measureText(getSpeedText()) + unitSpeedInterval;
-            }
-            c.drawText(getSpeedText(), speedX, c.getHeight() - .15f, speedTextPaint);
-            c.drawText(unit, unitX, c.getHeight() - .15f, unitTextPaint);
-            return speedUnitTextBitmap;
-        }
-    }
-
-    private float getMaxWidthForSpeedUnitText() {
-        String maxSpeedText = speedTextFormat == FLOAT_FORMAT ? String.format(locale, "%.1f", (float) maxSpeed)
-                : String.format(locale, "%d", maxSpeed);
-        return unitUnderSpeedText ?
-                Math.max(speedTextPaint.measureText(maxSpeedText), unitTextPaint.measureText(unit))
-                : speedTextPaint.measureText(maxSpeedText) + unitTextPaint.measureText(unit) + unitSpeedInterval;
-    }
-
-    /**
-     * @return the width of speed & unit text.
-     */
-    private float getSpeedUnitTextWidth() {
-        return unitUnderSpeedText ?
-                Math.max(speedTextPaint.measureText(getSpeedText()), unitTextPaint.measureText(getUnit()))
-                : speedTextPaint.measureText(getSpeedText()) + unitTextPaint.measureText(getUnit()) + unitSpeedInterval;
-    }
-
-    /**
-     * @return the height of speed & unit text.
-     */
-    private float getSpeedUnitTextHeight() {
-        return unitUnderSpeedText ?
-                speedTextPaint.getTextSize() + unitTextPaint.getTextSize() + unitSpeedInterval
-                : Math.max(speedTextPaint.getTextSize(), unitTextPaint.getTextSize());
-    }
 
     /**
      * create canvas to draw {@link #backgroundBitmap}.
@@ -646,7 +561,7 @@ public abstract class Gauge extends View {
      */
     public void setSpeedTextFormat(byte speedTextFormat) {
         this.speedTextFormat = speedTextFormat;
-        recreateSpeedUnitTextBitmap();
+        //recreateSpeedUnitTextBitmap();
         if (!attachedToWindow)
             return;
         updateBackgroundBitmap();
@@ -702,37 +617,13 @@ public abstract class Gauge extends View {
     }
 
     /**
-     * what is speed now in <b>integer</b>.
-     * <p>
-     * safe method to handle all speed values in {@link #onSpeedChangeListener}.
-     * </p>
-     *
-     * @return correct speed in Integer
-     * @see #getCurrentSpeed()
-     */
-    public int getCurrentIntSpeed() {
-        return currentIntSpeed;
-    }
-
-    /**
      * get max speed in speedometer, default max speed is 100.
      *
      * @return max speed.
      * @see #getMinSpeed()
-     * @see #setMaxSpeed(int)
      */
     public int getMaxSpeed() {
         return maxSpeed;
-    }
-
-    /**
-     * change max speed.<br>
-     *
-     * @param maxSpeed new MAX Speed.
-     * @throws IllegalArgumentException if {@code minSpeed >= maxSpeed}
-     */
-    public void setMaxSpeed(int maxSpeed) {
-        setMinMaxSpeed(minSpeed, maxSpeed);
     }
 
     /**
@@ -740,190 +631,12 @@ public abstract class Gauge extends View {
      *
      * @return min speed.
      * @see #getMaxSpeed()
-     * @see #setMinSpeed(int)
      */
     public int getMinSpeed() {
         return minSpeed;
     }
 
-    /**
-     * change min speed.<br>
-     *
-     * @param minSpeed new MAX Speed.
-     * @throws IllegalArgumentException if {@code minSpeed >= maxSpeed}
-     */
-    public void setMinSpeed(int minSpeed) {
-        setMinMaxSpeed(minSpeed, maxSpeed);
-    }
-
-    /**
-     * change Min and Max speed.<br>
-     *
-     * @param minSpeed new MAX Speed.
-     * @throws IllegalArgumentException if {@code minSpeed >= maxSpeed}
-     */
-    public void setMinMaxSpeed(int minSpeed, int maxSpeed) {
-        if (minSpeed >= maxSpeed)
-            throw new IllegalArgumentException("minSpeed must be smaller than maxSpeed !!");
-        cancelSpeedAnimator();
-        this.minSpeed = minSpeed;
-        this.maxSpeed = maxSpeed;
-        recreateSpeedUnitTextBitmap();
-        if (!attachedToWindow)
-            return;
-        updateBackgroundBitmap();
-        setSpeedAt(speed);
-    }
-
-    /**
-     * get correct speed as <b>percent</b>.
-     *
-     * @return percent speed, between [0,100].
-     */
-    public float getPercentSpeed() {
-        return (currentSpeed - minSpeed) * 100f / (float) (maxSpeed - minSpeed);
-    }
-
-    /**
-     * @return offset speed, between [0,1].
-     */
-    public float getOffsetSpeed() {
-        return (currentSpeed - minSpeed) / (float) (maxSpeed - minSpeed);
-    }
-
-    /**
-     * @return all text color without <b>speed, unit text</b>.
-     */
-    public int getTextColor() {
-        return textPaint.getColor();
-    }
-
-    /**
-     * change all text color without <b>speed, unit text</b>.
-     *
-     * @param textColor new color.
-     * @see #setSpeedTextColor(int)
-     * @see #setUnitTextColor(int)
-     */
-    public void setTextColor(int textColor) {
-        textPaint.setColor(textColor);
-        if (!attachedToWindow)
-            return;
-        updateBackgroundBitmap();
-        invalidate();
-    }
-
-    /**
-     * @return just speed text color.
-     */
-    public int getSpeedTextColor() {
-        return speedTextPaint.getColor();
-    }
-
-    /**
-     * change just speed text color.
-     *
-     * @param speedTextColor new color.
-     * @see #setUnitTextColor(int)
-     * @see #setTextColor(int)
-     */
-    public void setSpeedTextColor(int speedTextColor) {
-        speedTextPaint.setColor(speedTextColor);
-        if (!attachedToWindow)
-            return;
-        invalidate();
-    }
-
-    /**
-     * @return just unit text color.
-     */
-    public int getUnitTextColor() {
-        return unitTextPaint.getColor();
-    }
-
-    /**
-     * change just unit text color.
-     *
-     * @param unitTextColor new color.
-     * @see #setSpeedTextColor(int)
-     * @see #setTextColor(int)
-     */
-    public void setUnitTextColor(int unitTextColor) {
-        unitTextPaint.setColor(unitTextColor);
-        if (!attachedToWindow)
-            return;
-        invalidate();
-    }
-
-    /**
-     * @return all text size without <b>speed and unit text</b>.
-     */
-    public float getTextSize() {
-        return textPaint.getTextSize();
-    }
-
-    /**
-     * change all text size without <b>speed and unit text</b>.
-     *
-     * @param textSize new size in pixel.
-     * @see #dpTOpx(float)
-     * @see #setUnitTextSize(float)
-     */
-    public void setTextSize(float textSize) {
-        textPaint.setTextSize(textSize);
-        if (!attachedToWindow)
-            return;
-        invalidate();
-    }
-
-    /**
-     * @return just speed text size.
-     */
-    public float getSpeedTextSize() {
-        return speedTextPaint.getTextSize();
-    }
-
-    /**
-     * change just speed text size.
-     *
-     * @param speedTextSize new size in pixel.
-     * @see #dpTOpx(float)
-     * @see #setTextSize(float)
-     * @see #setUnitTextSize(float)
-     */
-    public void setSpeedTextSize(float speedTextSize) {
-        speedTextPaint.setTextSize(speedTextSize);
-        recreateSpeedUnitTextBitmap();
-        if (!attachedToWindow)
-            return;
-        invalidate();
-    }
-
-    /**
-     * @return just unit text size.
-     */
-    public float getUnitTextSize() {
-        return unitTextPaint.getTextSize();
-    }
-
-    /**
-     * change just unit text size.
-     *
-     * @param unitTextSize new size in pixel.
-     * @see #dpTOpx(float)
-     * @see #setSpeedTextSize(float)
-     * @see #setTextSize(float)
-     */
-    public void setUnitTextSize(float unitTextSize) {
-        unitTextPaint.setTextSize(unitTextSize);
-        recreateSpeedUnitTextBitmap();
-        if (!attachedToWindow)
-            return;
-        updateBackgroundBitmap();
-        invalidate();
-    }
-
-    /**
+  /**
      * @return unit text.
      */
     public String getUnit() {
@@ -937,7 +650,6 @@ public abstract class Gauge extends View {
      */
     public void setUnit(String unit) {
         this.unit = unit;
-        recreateSpeedUnitTextBitmap();
         if (!attachedToWindow)
             return;
         invalidate();
@@ -1239,26 +951,6 @@ public abstract class Gauge extends View {
     public void setSpeedTextTypeface(Typeface typeface) {
         speedTextPaint.setTypeface(typeface);
         unitTextPaint.setTypeface(typeface);
-        if (!attachedToWindow)
-            return;
-        updateBackgroundBitmap();
-        invalidate();
-    }
-
-    /**
-     * @return typeface for all texts without speed and unit text.
-     */
-    public Typeface getTextTypeface() {
-        return textPaint.getTypeface();
-    }
-
-    /**
-     * change typeface for all texts without speed and unit text.
-     *
-     * @param typeface Maybe null. The typeface to be installed.
-     */
-    public void setTextTypeface(Typeface typeface) {
-        textPaint.setTypeface(typeface);
         if (!attachedToWindow)
             return;
         updateBackgroundBitmap();

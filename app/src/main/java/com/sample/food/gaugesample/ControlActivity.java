@@ -39,7 +39,7 @@ public class ControlActivity extends AppCompatActivity {
             }
         });
 
-        speedView.speedTo(50);
+        speedView.speedTo(12);
 
     }
 

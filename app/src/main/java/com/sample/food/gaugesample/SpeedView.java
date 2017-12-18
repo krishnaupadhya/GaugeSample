@@ -103,21 +103,20 @@ public class SpeedView extends Speedometer {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         initDraw();
 
-        //drawSpeedUnitText(canvas);
-
+        //draw indicator line
         drawIndicator(canvas);
 
-
-//        canvas.drawBitmap(bitmap, (this.getWidth() / 2) - riskPosition, riskPosition, null);
+        // draw indicator circles at center
         canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 16f, outerCirclePaint);
         canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 40f, innerCirclePaint);
-        // canvas.drawArc(speedometerRect,180,180+360,true,outerCirclePaint);
-
-        //drawNotes(canvas);
     }
 
+    /**
+     * draw arcs
+     */
     @Override
     protected void updateBackgroundBitmap() {
         Canvas c = createBackgroundBitmapCanvas();
@@ -161,8 +160,8 @@ public class SpeedView extends Speedometer {
         speedometerPaint.setColor(getLowSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
                 , (getEndDegree() - getStartDegree()) * getLowSpeedOffset(), false, speedometerPaint);
+
         updateTextView(c, riskPosition);
-        //updateIndicator(c);
         c.save();
 
     }
@@ -199,6 +198,11 @@ public class SpeedView extends Speedometer {
         );*/
     }
 
+    /**
+     * draw risk type text views at respective positions
+     * @param c
+     * @param risk
+     */
     private void updateTextView(Canvas c, float risk) {
         Paint paint = new Paint();
         paint.setColor(Color.TRANSPARENT);
