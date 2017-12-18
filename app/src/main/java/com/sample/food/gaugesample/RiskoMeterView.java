@@ -14,39 +14,34 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
-import java.util.Locale;
-
-public abstract class Gauge extends View {
+public abstract class RiskoMeterView extends View {
 
     /**
-     * the max range in speedometer, {@code default = 100}
+     * the max range in Riskometer, {@code default = 100}
      */
     private int maxRiskPercentage = 100;
     /**
-     * the min range in speedometer, {@code default = 0}
+     * the min range in Riskometer, {@code default = 0}
      */
     private int minRiskPercentage = 0;
     /**
-     * the last speed which you set by {@link #speedTo(float)}
-     * or if you stop speedometer By {@link #stop()} method.
+     * the last riskPercentage which you set by {@link #RiskTo(float)}
+     * or if you stop Riskometer By {@link #stop()} method.
      */
-    private float speed = minRiskPercentage;
+    private float riskPercentage = minRiskPercentage;
     /**
-     * what is speed now in <b>int</b>
+     * what is riskPercentage now in <b>float</b>
      */
-    private int currentIntSpeed = 0;
-    /**
-     * what is speed now in <b>float</b>
-     */
-    private float currentSpeed = 0f;
+    private float currentRiskPercentage = 0f;
 
-    private ValueAnimator speedAnimator;
+    private ValueAnimator riskAnimator;
     private Animator.AnimatorListener animatorListener;
 
     /**
      * to contain all drawing that doesn't change
      */
     protected Bitmap backgroundBitmap;
+
     private Paint backgroundBitmapPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private int padding = 0;
@@ -56,80 +51,47 @@ public abstract class Gauge extends View {
     private int widthPa = 0;
 
     /**
-     * low speed area
+     * low riskPercentage area
      */
-    private int lowSpeedPercent = 20;
+    private int lowRiskPercent = 20;
     /**
-     * low speed area
+     * low riskPercentage area
      */
-    private int lowMidSpeedPercent = 40;
+    private int moderateLowRiskPercent = 40;
     /**
-     * medium speed area
+     * medium riskPercentage area
      */
-    private int mediumSpeedPercent = 60;
+    private int mediumRiskPercent = 60;
     /**
-     * medium speed area
+     * medium riskPercentage area
      */
-    private int mediumHighSpeedPercent = 80;
+    private int moderatelyHighRiskPercent = 80;
 
     private boolean attachedToWindow = false;
 
     protected float translatedDx = 0;
     protected float translatedDy = 0;
 
-    /**
-     * object to set text digits locale
-     */
-    private Locale locale = Locale.getDefault();
-
-    /**
-     * Number expresses the Acceleration, between (0, 1]
-     */
-    private float accelerate = .1f;
-    /**
-     * Number expresses the Deceleration, between (0, 1]
-     */
-    private float decelerate = .1f;
-
-    //private Position speedTextPosition = Position.BOTTOM_CENTER;
-    /**
-     * space between unitText and speedText
-     */
-    private float unitSpeedInterval = dpTOpx(1);
-    private float speedTextPadding = dpTOpx(20f);
-    private boolean unitUnderSpeedText = false;
-    private Bitmap speedUnitTextBitmap;
-
-    /**
-     * draw speed text as <b>integer</b> .
-     */
-    public static final byte INTEGER_FORMAT = 0;
-    /**
-     * draw speed text as <b>float</b>.
-     */
-    public static final byte FLOAT_FORMAT = 1;
-    private byte speedTextFormat = FLOAT_FORMAT;
-
-    public Gauge(Context context) {
+    public RiskoMeterView(Context context) {
         this(context, null);
         init();
     }
 
-    public Gauge(Context context, AttributeSet attrs) {
+    public RiskoMeterView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
         init();
     }
 
-    public Gauge(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RiskoMeterView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
 
     }
 
     private void init() {
-        checkSpeedometerPercent();
+        checkRiskMeterPercent();
         if (Build.VERSION.SDK_INT >= 11) {
-            speedAnimator = ValueAnimator.ofFloat(0f, 1f);
+            riskAnimator = ValueAnimator.ofFloat(0f, 1f);
             animatorListener = new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
@@ -158,13 +120,17 @@ public abstract class Gauge extends View {
         setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight(), getPaddingBottom());
     }
 
-    private void checkSpeedometerPercent() {
-        if (lowSpeedPercent > mediumSpeedPercent)
-            throw new IllegalArgumentException("lowSpeedPercent must be smaller than mediumSpeedPercent");
-        if (lowSpeedPercent > 100 || lowSpeedPercent < 0)
-            throw new IllegalArgumentException("lowSpeedPercent must be between [0, 100]");
-        if (mediumSpeedPercent > 100 || mediumSpeedPercent < 0)
-            throw new IllegalArgumentException("mediumSpeedPercent must be between [0, 100]");
+    private void checkRiskMeterPercent() {
+        if (lowRiskPercent > moderateLowRiskPercent)
+            throw new IllegalArgumentException("lowRiskPercent must be smaller than moderateLowRiskPercent");
+        if (moderateLowRiskPercent > mediumRiskPercent)
+            throw new IllegalArgumentException("moderateLowRiskPercent must be smaller than mediumRiskPercent");
+        if (mediumRiskPercent > moderatelyHighRiskPercent)
+            throw new IllegalArgumentException("mediumRiskPercent must be smaller than moderatelyHighRiskPercent");
+        if (lowRiskPercent > 100 || lowRiskPercent < 0)
+            throw new IllegalArgumentException("lowRiskPercent must be between [0, 100]");
+        if (mediumRiskPercent > 100 || mediumRiskPercent < 0)
+            throw new IllegalArgumentException("mediumRiskPercent must be between [0, 100]");
     }
 
     /**
@@ -211,109 +177,100 @@ public abstract class Gauge extends View {
     }
 
     /**
-     * use this method just when you wont to stop {@code speedTo and realSpeedTo}.
+     * use this method just when you wont to stop {@code RiskTo and realRiskTo}.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void stop() {
         if (Build.VERSION.SDK_INT < 11)
             return;
-        if (!speedAnimator.isRunning())
+        if (!riskAnimator.isRunning())
             return;
-        speed = currentSpeed;
-        cancelSpeedAnimator();
+        riskPercentage = currentRiskPercentage;
+        cancelRiskAnimator();
     }
 
     /**
      * cancel all animators without call
      */
-    protected void cancelSpeedAnimator() {
-        cancelSpeedMove();
+    protected void cancelRiskAnimator() {
+        cancelRiskMove();
 
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void cancelSpeedMove() {
+    private void cancelRiskMove() {
         if (Build.VERSION.SDK_INT < 11)
             return;
-        speedAnimator.cancel();
+        riskAnimator.cancel();
     }
 
     /**
-     * rotate indicator to correct speed without animation.
+     * rotate indicator to correct riskPercentage without animation.
      *
-     * @param speed correct speed to move.
+     * @param risk correct riskPercentage to move.
      */
-    public void setSpeedAt(float speed) {
-        speed = (speed > maxRiskPercentage) ? maxRiskPercentage : (speed < minRiskPercentage) ? minRiskPercentage : speed;
-        this.speed = speed;
-        this.currentSpeed = speed;
-        cancelSpeedAnimator();
+    public void setRiskAt(float risk) {
+        risk = (risk > maxRiskPercentage) ? maxRiskPercentage : (risk < minRiskPercentage) ? minRiskPercentage : risk;
+        this.riskPercentage = risk;
+        this.currentRiskPercentage = risk;
+        cancelRiskAnimator();
         invalidate();
     }
 
     /**
-     * move speed to correct {@code int},
+     * move riskPercentage to correct {@code int},
      * it should be between [{@link #minRiskPercentage}, {@link #maxRiskPercentage}].<br>
      * <br>
-     * if {@code speed > maxRiskPercentage} speed will change to {@link #maxRiskPercentage},<br>
-     * if {@code speed < minRiskPercentage} speed will change to {@link #minRiskPercentage}.<br>
+     * if {@code riskPercentage > maxRiskPercentage} riskPercentage will change to {@link #maxRiskPercentage},<br>
+     * if {@code riskPercentage < minRiskPercentage} riskPercentage will change to {@link #minRiskPercentage}.<br>
      * <p>
-     * it is the same {@link #speedTo(float, long)}
+     * it is the same {@link #RiskTo(float, long)}
      * with default {@code moveDuration = 2000}.
      *
-     * @param speed correct speed to move.
-     * @see #speedTo(float, long)
+     * @param risk correct riskPercentage to move.
+     * @see #RiskTo(float, long)
      */
-    public void speedTo(float speed) {
-        speedTo(speed, 2000);
+    public void RiskTo(float risk) {
+        RiskTo(risk, 2000);
     }
 
     /**
-     * move speed to correct {@code int},
+     * move riskPercentage to correct {@code int},
      * it should be between [{@link #minRiskPercentage}, {@link #maxRiskPercentage}].<br>
      * <br>
-     * if {@code speed > maxRiskPercentage} speed will change to {@link #maxRiskPercentage},<br>
-     * if {@code speed < minRiskPercentage} speed will change to {@link #minRiskPercentage}.
+     * if {@code riskPercentage > maxRiskPercentage} riskPercentage will change to {@link #maxRiskPercentage},<br>
+     * if {@code riskPercentage < minRiskPercentage} riskPercentage will change to {@link #minRiskPercentage}.
      *
-     * @param speed        correct speed to move.
+     * @param risk        correct riskPercentage to move.
      * @param moveDuration The length of the animation, in milliseconds.
      *                     This value cannot be negative.
-     * @see #speedTo(float)
+     * @see #RiskTo(float)
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void speedTo(float speed, long moveDuration) {
-        speed = (speed > maxRiskPercentage) ? maxRiskPercentage : (speed < minRiskPercentage) ? minRiskPercentage : speed;
-        if (speed == this.speed)
+    public void RiskTo(float risk, long moveDuration) {
+        risk = (risk > maxRiskPercentage) ? maxRiskPercentage : (risk < minRiskPercentage) ? minRiskPercentage : risk;
+        if (risk == this.riskPercentage)
             return;
-        this.speed = speed;
+        this.riskPercentage = risk;
 
         if (Build.VERSION.SDK_INT < 11) {
-            setSpeedAt(speed);
+            setRiskAt(risk);
             return;
         }
 
-        cancelSpeedAnimator();
-        speedAnimator = ValueAnimator.ofFloat(currentSpeed, speed);
-        speedAnimator.setInterpolator(new DecelerateInterpolator());
-        speedAnimator.setDuration(moveDuration);
-        speedAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        cancelRiskAnimator();
+        riskAnimator = ValueAnimator.ofFloat(currentRiskPercentage, risk);
+        riskAnimator.setInterpolator(new DecelerateInterpolator());
+        riskAnimator.setDuration(moveDuration);
+        riskAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                currentSpeed = (float) speedAnimator.getAnimatedValue();
+                currentRiskPercentage = (float) riskAnimator.getAnimatedValue();
                 postInvalidate();
             }
         });
-        speedAnimator.addListener(animatorListener);
-        speedAnimator.start();
-    }
-
-    /**
-     * @param percentSpeed between [0, 100].
-     * @return speed value at correct percentSpeed.
-     */
-    private float getSpeedValue(float percentSpeed) {
-        percentSpeed = (percentSpeed > 100) ? 100 : (percentSpeed < 0) ? 0 : percentSpeed;
-        return percentSpeed * (maxRiskPercentage - minRiskPercentage) * .01f + minRiskPercentage;
+        riskAnimator.addListener(animatorListener);
+        riskAnimator.start();
     }
 
     @Override
@@ -325,7 +282,7 @@ public abstract class Gauge extends View {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        cancelSpeedAnimator();
+        cancelRiskAnimator();
         attachedToWindow = false;
     }
 
@@ -334,32 +291,32 @@ public abstract class Gauge extends View {
         super.onSaveInstanceState();
         Bundle bundle = new Bundle();
         bundle.putParcelable("superState", super.onSaveInstanceState());
-        bundle.putFloat("speed", speed);
+        bundle.putFloat("riskPercentage", riskPercentage);
         return bundle;
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         Bundle bundle = (Bundle) state;
-        speed = bundle.getFloat("speed");
+        riskPercentage = bundle.getFloat("riskPercentage");
         state = bundle.getParcelable("superState");
         super.onRestoreInstanceState(state);
-        setSpeedAt(speed);
+        setRiskAt(riskPercentage);
     }
 
     /**
-     * what is correct speed now.
+     * what is correct riskPercentage now.
      *
-     * @return correct speed now.
+     * @return correct riskPercentage now.
      */
-    public float getCurrentSpeed() {
-        return currentSpeed;
+    public float getCurrentRiskPercentage() {
+        return currentRiskPercentage;
     }
 
     /**
-     * get max speed in speedometer, default max speed is 100.
+     * get max riskPercentage in riskometer, default max riskPercentage is 100.
      *
-     * @return max speed.
+     * @return max riskPercentage.
      * @see #getMinRiskPercentage()
      */
     public int getMaxRiskPercentage() {
@@ -367,9 +324,9 @@ public abstract class Gauge extends View {
     }
 
     /**
-     * get min speed in speedometer, default min speed is 0.
+     * get min riskPercentage in riskometer, default min riskPercentage is 0.
      *
-     * @return min speed.
+     * @return min riskPercentage.
      * @see #getMaxRiskPercentage()
      */
     public int getMinRiskPercentage() {
@@ -377,38 +334,38 @@ public abstract class Gauge extends View {
     }
 
     /**
-     * @return the long of low speed area (low section) as Offset [0, 1].
+     * @return the long of low riskPercentage area (low section) as Offset [0, 1].
      */
-    public float getLowSpeedOffset() {
-        return lowSpeedPercent * .01f;
+    public float getLowRiskOffset() {
+        return lowRiskPercent * .01f;
     }
 
     /**
-     * @return the long of low speed area (low section) as Offset [0, 1].
+     * @return the long of low riskPercentage area (low section) as Offset [0, 1].
      */
-    public float getLowMidSpeedOffset() {
-        return lowMidSpeedPercent * .01f;
+    public float getModerateLowRiskOffset() {
+        return moderateLowRiskPercent * .01f;
     }
 
     /**
-     * @return the long of Medium speed area (Medium section) as percent.
+     * @return the long of Medium riskPercentage area (Medium section) as percent.
      */
-    public int getMediumSpeedPercent() {
-        return mediumSpeedPercent;
+    public int getMediumRiskPercent() {
+        return mediumRiskPercent;
     }
 
     /**
-     * @return the long of Medium speed area (Medium section) as Offset [0, 1].
+     * @return the long of Medium riskPercentage area (Medium section) as Offset [0, 1].
      */
-    public float getMediumSpeedOffset() {
-        return mediumSpeedPercent * .01f;
+    public float getMediumRiskOffset() {
+        return mediumRiskPercent * .01f;
     }
 
     /**
-     * @return the long of Medium speed area (Medium section) as Offset [0, 1].
+     * @return the long of Medium riskPercentage area (Medium section) as Offset [0, 1].
      */
-    public float getMediumHighSpeedOffset() {
-        return mediumHighSpeedPercent * .01f;
+    public float getModeratelyOffset() {
+        return moderatelyHighRiskPercent * .01f;
     }
 
     /**

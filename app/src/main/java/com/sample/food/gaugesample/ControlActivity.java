@@ -39,12 +39,12 @@ public class ControlActivity extends AppCompatActivity {
             }
         });
 
-        speedView.speedTo(12);
+        speedView.RiskTo(12);
 
     }
 
     public void setSpeed(View view) {
-        speedView.speedTo(seekBar.getProgress());
+        speedView.RiskTo(seekBar.getProgress());
     }
 
 

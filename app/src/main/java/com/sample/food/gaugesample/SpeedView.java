@@ -8,12 +8,13 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 
 import com.sample.food.gaugesample.Indicators.ImageIndicator;
 import com.sample.food.gaugesample.Indicators.Indicator;
 import com.sample.food.gaugesample.Indicators.NormalIndicator;
 
-public class SpeedView extends Gauge {
+public class SpeedView extends RiskoMeterView {
 
     private Paint outerCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG),
             innerCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG),
@@ -125,7 +126,7 @@ public class SpeedView extends Gauge {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        degree = getDegreeAtSpeed(getCurrentSpeed());
+        degree = getDegreeAtSpeed(getCurrentRiskPercentage());
         initDraw();
 
         //draw indicator line
@@ -163,36 +164,36 @@ public class SpeedView extends Gauge {
 
         speedometerPaint.setColor(Color.WHITE);
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getMediumHighSpeedOffset() + ARC_PADDING, false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getModeratelyOffset() + ARC_PADDING, false, speedometerPaint);
 
         speedometerPaint.setColor(getMediumHighSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getMediumHighSpeedOffset(), false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getModeratelyOffset(), false, speedometerPaint);
 
         speedometerPaint.setColor(Color.WHITE);
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getMediumSpeedOffset() + ARC_PADDING, false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getMediumRiskOffset() + ARC_PADDING, false, speedometerPaint);
 
         speedometerPaint.setColor(getMediumSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getMediumSpeedOffset(), false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getMediumRiskOffset(), false, speedometerPaint);
 
         speedometerPaint.setColor(Color.WHITE);
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getLowMidSpeedOffset() + ARC_PADDING, false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getModerateLowRiskOffset() + ARC_PADDING, false, speedometerPaint);
 
         speedometerPaint.setColor(getLowMidSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getLowMidSpeedOffset(), false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getModerateLowRiskOffset(), false, speedometerPaint);
 
         speedometerPaint.setColor(Color.WHITE);
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getLowSpeedOffset() + ARC_PADDING, false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getLowRiskOffset() + ARC_PADDING, false, speedometerPaint);
 
 
         speedometerPaint.setColor(getLowSpeedColor());
         c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getLowSpeedOffset(), false, speedometerPaint);
+                , (getEndDegree() - getStartDegree()) * getLowRiskOffset(), false, speedometerPaint);
 
         updateTextView(c, riskPosition);
         c.save();
@@ -211,7 +212,10 @@ public class SpeedView extends Gauge {
         c.drawPaint(paint);
 
         paint.setColor(getResources().getColor(R.color.risko_meter_text_color));
-        paint.setTextSize(getContext().getResources().getDimensionPixelSize(R.dimen.custom_text_size));
+        int spSize = 12;
+        float scaledSizeInPixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+                spSize, getResources().getDisplayMetrics());
+        paint.setTextSize(scaledSizeInPixels);
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         c.drawText(getContext().getString(R.string.low_risk), risk - (0.7f * risk), risk * 2, paint);
         c.drawText(getContext().getString(R.string.low_mid_risk), risk - (0.7f * risk), risk - (0.1f * risk), paint);
@@ -237,12 +241,10 @@ public class SpeedView extends Gauge {
     }
 
     @Override
-    public void speedTo(float speed) {
-        setRiskPercentage(speed);
+    public void RiskTo(float risk) {
+        setRiskPercentage(risk);
         updateBackgroundBitmap();
-        super.speedTo(riskPercentage);
-
-
+        super.RiskTo(riskPercentage);
     }
 
     private void setRiskPercentage(float speed) {
@@ -444,57 +446,4 @@ public class SpeedView extends Gauge {
         return Math.max(getWidth(), getHeight());
     }
 
-    public float getIndicatorWidth() {
-        return indicator.getIndicatorWidth();
-    }
-
-    /**
-     * change indicator width, this value have several meaning
-     * between {@link Indicator.Indicators}, it will be ignore
-     * if using {@link ImageIndicator}.
-     *
-     * @param indicatorWidth new width in pixel.
-     */
-    public void setIndicatorWidth(float indicatorWidth) {
-        indicator.noticeIndicatorWidthChange(indicatorWidth);
-        if (!isAttachedToWindow())
-            return;
-        invalidate();
-    }
-
-    /**
-     * call this method to apply/remove blur effect for indicator.
-     *
-     * @param withEffects effect.
-     */
-    protected void indicatorEffects(boolean withEffects) {
-        indicator.withEffects(withEffects);
-    }
-
-    /**
-     * change <a href="https://github.com/anastr/SpeedView/wiki/Indicators">indicator shape</a>.<br>
-     * this method will get bach indicatorColor and indicatorWidth to default.
-     *
-     * @param indicator new indicator (Enum value).
-     */
-    public void setIndicator(Indicator.Indicators indicator) {
-        this.indicator = Indicator.createIndicator(getContext(), indicator);
-        if (!isAttachedToWindow())
-            return;
-        this.indicator.setTargetSpeedometer(this);
-        invalidate();
-    }
-
-    /**
-     * add custom <a href="https://github.com/anastr/SpeedView/wiki/Indicators">indicator</a>.
-     *
-     * @param indicator new indicator.
-     */
-    public void setIndicator(Indicator indicator) {
-        this.indicator = indicator;
-        if (!isAttachedToWindow())
-            return;
-        this.indicator.setTargetSpeedometer(this);
-        invalidate();
-    }
 }
