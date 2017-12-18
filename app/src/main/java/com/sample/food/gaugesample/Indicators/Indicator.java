@@ -13,7 +13,7 @@ import com.sample.food.gaugesample.Speedometer;
 @SuppressWarnings("unchecked,unused,WeakerAccess")
 public abstract class Indicator<I extends Indicator> {
 
-    protected Paint indicatorPaint =  new Paint(Paint.ANTI_ALIAS_FLAG);
+    protected Paint indicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private float density;
     private float indicatorWidth;
     private float viewSize;
@@ -22,7 +22,7 @@ public abstract class Indicator<I extends Indicator> {
     private int padding;
     private boolean inEditMode;
 
-    protected Indicator (Context context) {
+    protected Indicator(Context context) {
         this.density = context.getResources().getDisplayMetrics().density;
         init();
     }
@@ -33,14 +33,22 @@ public abstract class Indicator<I extends Indicator> {
     }
 
     public abstract void draw(Canvas canvas, float degree);
-    /** called when size change or color, width */
+
+    /**
+     * called when size change or color, width
+     */
     protected abstract void updateIndicator();
-    /** if indicator have effects like BlurMaskFilter */
+
+    /**
+     * if indicator have effects like BlurMaskFilter
+     */
     protected abstract void setWithEffects(boolean withEffects);
+
     protected abstract float getDefaultIndicatorWidth();
 
     /**
      * must call in {@code speedometer.onSizeChanged()}
+     *
      * @param speedometer target speedometer.
      */
     public void onSizeChange(Speedometer speedometer) {
@@ -50,6 +58,7 @@ public abstract class Indicator<I extends Indicator> {
     /**
      * to change indicator's data,
      * this method called by the library.
+     *
      * @param speedometer target speedometer.
      */
     public void setTargetSpeedometer(Speedometer speedometer) {
@@ -81,7 +90,7 @@ public abstract class Indicator<I extends Indicator> {
      * @return size of Speedometer View without padding.
      */
     public float getViewSize() {
-        return viewSize - (padding*2f);
+        return viewSize - (padding * 2f);
     }
 
     public int getIndicatorColor() {
@@ -97,14 +106,14 @@ public abstract class Indicator<I extends Indicator> {
      * @return x center of speedometer.
      */
     public float getCenterX() {
-        return viewSize /2f;
+        return viewSize / 2f;
     }
 
     /**
      * @return y center of speedometer.
      */
     public float getCenterY() {
-        return viewSize /2f;
+        return viewSize / 2f;
     }
 
     public int getPadding() {
@@ -144,43 +153,26 @@ public abstract class Indicator<I extends Indicator> {
         return inEditMode;
     }
 
-    /** indicator's shape */
+    /**
+     * indicator's shape
+     */
     public enum Indicators {
-        NoIndicator, NormalIndicator, NormalSmallIndicator, TriangleIndicator
-        , SpindleIndicator, LineIndicator, HalfLineIndicator, QuarterLineIndicator
-        , KiteIndicator, NeedleIndicator
+        NoIndicator, NormalIndicator, NormalSmallIndicator, TriangleIndicator, SpindleIndicator, LineIndicator, HalfLineIndicator, QuarterLineIndicator, KiteIndicator, NeedleIndicator
     }
 
     /**
      * create new {@link Indicator} with default values.
-     * @param context required.
+     *
+     * @param context   required.
      * @param indicator new indicator (Enum value).
      * @return new indicator object.
      */
-    public static Indicator createIndicator (Context context, Indicators indicator) {
+    public static Indicator createIndicator(Context context, Indicators indicator) {
         switch (indicator) {
-            case NoIndicator :
-                return new NoIndicator(context);
-            case NormalIndicator :
+            case NormalIndicator:
+            default:
                 return new NormalIndicator(context);
-            case NormalSmallIndicator :
-                return new NormalSmallIndicator(context);
-            case TriangleIndicator :
-                return new TriangleIndicator(context);
-            case SpindleIndicator :
-                return new SpindleIndicator(context);
-            case LineIndicator :
-                return new LineIndicator(context, LineIndicator.LINE);
-            case HalfLineIndicator :
-                return new LineIndicator(context, LineIndicator.HALF_LINE);
-            case QuarterLineIndicator :
-                return new LineIndicator(context, LineIndicator.QUARTER_LINE);
-            case KiteIndicator :
-                return new KiteIndicator(context);
-            case NeedleIndicator :
-                return new NeedleIndicator(context);
-            default :
-                return new NormalIndicator(context);
+
         }
     }
 }

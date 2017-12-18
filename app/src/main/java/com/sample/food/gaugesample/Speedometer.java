@@ -11,7 +11,7 @@ import android.util.AttributeSet;
 
 import com.sample.food.gaugesample.Indicators.ImageIndicator;
 import com.sample.food.gaugesample.Indicators.Indicator;
-import com.sample.food.gaugesample.Indicators.NoIndicator;
+import com.sample.food.gaugesample.Indicators.NormalIndicator;
 import com.sample.food.gaugesample.note.Note;
 import com.sample.food.gaugesample.util.OnPrintTickLabel;
 
@@ -73,7 +73,7 @@ public abstract class Speedometer extends Gauge {
     }
 
     private void init() {
-        indicator = new NoIndicator(getContext());
+        indicator = new NormalIndicator(getContext());
         defaultSpeedometerValues();
     }
 

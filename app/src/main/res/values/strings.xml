@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">GaugeSample</string>
-    <string name="low_risk">Low Risk</string>
-    <string name="low_mid_risk">Low Medium Risk</string>
-    <string name="mid_risk">Medium Risk</string>
-    <string name="mid_high_risk">Medium High Risk</string>
-    <string name="high_risk">High Risk</string>
+    <string name="low_risk">Low</string>
+    <string name="low_mid_risk">Moderate Low</string>
+    <string name="mid_risk">Moderate</string>
+    <string name="mid_high_risk">Moderately High</string>
+    <string name="high_risk">High</string>
 </resources>

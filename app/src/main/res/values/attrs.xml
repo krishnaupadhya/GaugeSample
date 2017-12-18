@@ -113,6 +113,7 @@
 
     <declare-styleable name="SpeedView" parent="Speedometer">
         <attr name="sv_centerCircleColor" />
+        <attr name="sv_centerInnerCircleColor" />
     </declare-styleable>
 
     <declare-styleable name="DeluxeSpeedView" parent="Speedometer">

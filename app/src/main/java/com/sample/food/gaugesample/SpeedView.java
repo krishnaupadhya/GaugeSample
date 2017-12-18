@@ -2,18 +2,13 @@ package com.sample.food.gaugesample;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 
-import com.sample.food.gaugesample.Indicators.ImageIndicator;
 import com.sample.food.gaugesample.Indicators.NormalIndicator;
 
 /**
@@ -22,7 +17,8 @@ import com.sample.food.gaugesample.Indicators.NormalIndicator;
  */
 public class SpeedView extends Speedometer {
 
-    private Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG),
+    private Paint outerCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG),
+            innerCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG),
             speedometerPaint = new Paint(Paint.ANTI_ALIAS_FLAG),
             markPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private RectF speedometerRect = new RectF();
@@ -77,7 +73,9 @@ public class SpeedView extends Speedometer {
     private void init() {
         speedometerPaint.setStyle(Paint.Style.STROKE);
         markPaint.setStyle(Paint.Style.STROKE);
-        circlePaint.setColor(Color.DKGRAY);
+        outerCirclePaint.setColor(getResources().getColor(R.color.center_outer_circle));
+        innerCirclePaint.setColor(Color.WHITE);
+        setIndicatorColor(getResources().getColor(R.color.risko_meter_indicator_color));
     }
 
     private void initAttributeSet(Context context, AttributeSet attrs) {
@@ -86,7 +84,8 @@ public class SpeedView extends Speedometer {
         }
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SpeedView, 0, 0);
 
-        circlePaint.setColor(a.getColor(R.styleable.SpeedView_sv_centerCircleColor, circlePaint.getColor()));
+        outerCirclePaint.setColor(a.getColor(R.styleable.SpeedView_sv_centerCircleColor, outerCirclePaint.getColor()));
+        innerCirclePaint.setColor(a.getColor(R.styleable.SpeedView_sv_centerInnerCircleColor, innerCirclePaint.getColor()));
         a.recycle();
     }
 
@@ -112,8 +111,9 @@ public class SpeedView extends Speedometer {
 
 
 //        canvas.drawBitmap(bitmap, (this.getWidth() / 2) - riskPosition, riskPosition, null);
-        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 12f, circlePaint);
-        // canvas.drawArc(speedometerRect,180,180+360,true,circlePaint);
+        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 18f, outerCirclePaint);
+        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 36f, innerCirclePaint);
+        // canvas.drawArc(speedometerRect,180,180+360,true,outerCirclePaint);
 
         //drawNotes(canvas);
     }
@@ -195,7 +195,7 @@ public class SpeedView extends Speedometer {
         canvas.drawBitmap(
                 srcBitmap, // Bitmap
                 matrix, // Matrix
-                circlePaint // Paint
+                outerCirclePaint // Paint
         );*/
     }
 
@@ -205,29 +205,29 @@ public class SpeedView extends Speedometer {
         paint.setStyle(Paint.Style.FILL);
         c.drawPaint(paint);
 
-        paint.setColor(Color.DKGRAY);
+        paint.setColor(getResources().getColor(R.color.risko_meter_text_color));
         paint.setTextSize(getContext().getResources().getDimensionPixelSize(R.dimen.custom_text_size));
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        c.drawText(getContext().getString(R.string.low_risk), risk - (0.9f * risk), risk * 2, paint);
+        c.drawText(getContext().getString(R.string.low_risk), risk - (0.7f * risk), risk * 2, paint);
         c.drawText(getContext().getString(R.string.low_mid_risk), risk - (0.7f * risk), risk - (0.1f * risk), paint);
         c.drawText(getContext().getString(R.string.mid_risk), risk * 2.3f, risk - (0.5f * risk), paint);
         c.drawText(getContext().getString(R.string.mid_high_risk), risk * 4f, risk, paint);
-        c.drawText(getContext().getString(R.string.high_risk), risk * 4.85f, risk * 2, paint);
+        c.drawText(getContext().getString(R.string.high_risk), risk * 4.9f, risk * 2, paint);
         if (riskPercentage < lowSpeedPercent) {
-            paint.setColor(getResources().getColor(R.color.colorAccent));
-            c.drawText(getContext().getString(R.string.low_risk), risk - (0.9f * risk), risk * 2, paint);
+            paint.setColor(getResources().getColor(R.color.low_color));
+            c.drawText(getContext().getString(R.string.low_risk), risk - (0.7f * risk), risk * 2, paint);
         } else if (riskPercentage < lowMidSpeedPercent) {
-            paint.setColor(getResources().getColor(R.color.colorAccent));
+            paint.setColor(getResources().getColor(R.color.low_mid_color));
             c.drawText(getContext().getString(R.string.low_mid_risk), risk - (0.7f * risk), risk - (0.1f * risk), paint);
         } else if (riskPercentage < mediumSpeedPercent) {
-            paint.setColor(getResources().getColor(R.color.colorAccent));
+            paint.setColor(getResources().getColor(R.color.mid_color));
             c.drawText(getContext().getString(R.string.mid_risk), risk * 2.3f, risk - (0.5f * risk), paint);
         } else if (riskPercentage < mediumHighSpeedPercent) {
-            paint.setColor(getResources().getColor(R.color.colorAccent));
+            paint.setColor(getResources().getColor(R.color.mid_high_color));
             c.drawText(getContext().getString(R.string.mid_high_risk), risk * 4f, risk, paint);
         } else {
-            paint.setColor(getResources().getColor(R.color.colorAccent));
-            c.drawText(getContext().getString(R.string.high_risk), risk * 4.85f, risk * 2, paint);
+            paint.setColor(getResources().getColor(R.color.high_color));
+            c.drawText(getContext().getString(R.string.high_risk), risk * 4.9f, risk * 2, paint);
         }
     }
 
@@ -262,9 +262,15 @@ public class SpeedView extends Speedometer {
      * @param centerCircleColor new color.
      */
     public void setCenterCircleColor(int centerCircleColor) {
-        circlePaint.setColor(centerCircleColor);
+        outerCirclePaint.setColor(centerCircleColor);
         if (!isAttachedToWindow())
             return;
         invalidate();
+    }
+
+    @Override
+    public void setIndicatorColor(int indicatorColor) {
+        super.setIndicatorColor(indicatorColor);
+
     }
 }
