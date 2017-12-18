@@ -1,16 +1,10 @@
 package com.sample.food.gaugesample;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import com.sample.food.gaugesample.Indicators.ImageIndicator;
 
 import java.util.Locale;
 
@@ -46,11 +40,7 @@ public class ControlActivity extends AppCompatActivity {
         });
 
         speedView.speedTo(50);
-        if (speedView.getWidth() > 0 && speedView.getHeight() > 0) {
-            ImageIndicator imageIndicator = new ImageIndicator(this, R.drawable.group_2
-                    , (int) speedView.dpTOpx(speedView.getWidth()), (int) speedView.dpTOpx(speedView.getHeight()));
-            speedView.setIndicator(imageIndicator);
-        }
+
     }
 
     public void setSpeed(View view) {

@@ -8,11 +8,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 
-
 import com.sample.food.gaugesample.Indicators.ImageIndicator;
 import com.sample.food.gaugesample.Indicators.Indicator;
 import com.sample.food.gaugesample.Indicators.NormalIndicator;
-import com.sample.food.gaugesample.note.Note;
 import com.sample.food.gaugesample.util.OnPrintTickLabel;
 
 import java.util.ArrayList;
@@ -41,9 +39,6 @@ public abstract class Speedometer extends Gauge {
     private int startDegree = 180, endDegree = 180 + 180;
     /** to rotate indicator */
     private float degree = startDegree;
-
-    /** array to contain all notes that will be draw */
-    private ArrayList<Note> notes = new ArrayList<>();
 
     private Mode speedometerMode = Mode.NORMAL;
 
@@ -177,29 +172,6 @@ public abstract class Speedometer extends Gauge {
         indicator.draw(canvas, degree);
     }
 
-    /**
-     * draw Notes,
-     * every Speedometer must call this method at End of it's {@code onDraw()} method.
-     * @param canvas view canvas to draw notes.
-     */
-    protected void drawNotes(Canvas canvas) {
-        for (Note note : notes) {
-            if (note.getPosition() == Note.Position.CenterSpeedometer)
-                note.draw(canvas, getWidth() *.5f, getHeight() *.5f);
-            else {
-                float y = 0f;
-                if (note.getPosition() == Note.Position.CenterIndicator)
-                    y = getHeightPa() *.25f + getPadding();
-                else if (note.getPosition() == Note.Position.TopIndicator)
-                    y = getPadding();
-                canvas.save();
-                canvas.rotate(90f + getDegree(), getWidth() *.5f, getHeight() *.5f);
-                canvas.rotate(-(90f + getDegree()), getWidth() *.5f, y);
-                note.draw(canvas, getWidth() *.5f, y);
-                canvas.restore();
-            }
-        }
-    }
 
     /**
      * create canvas to draw {@link #backgroundBitmap}.
@@ -463,45 +435,6 @@ public abstract class Speedometer extends Gauge {
         return getSize() - (getPadding()*2);
     }
 
-    /**
-     * Display new <a href="https://github.com/anastr/SpeedView/wiki/Notes">Note</a>
-     * for 3 seconds.
-     * @param note to display.
-     */
-    public void addNote(Note note) {
-        addNote(note, 3000);
-    }
-
-    /**
-     * Display new <a href="https://github.com/anastr/SpeedView/wiki/Notes">Note</a>
-     * for custom seconds.
-     * @param note to display.
-     * @param showTimeMillisecond time to remove Note.
-     */
-    public void addNote(final Note note, long showTimeMillisecond) {
-        note.build(getWidth());
-        notes.add(note);
-        if (showTimeMillisecond == Note.INFINITE)
-            return;
-        postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isAttachedToWindow()) {
-                    notes.remove(note);
-                    postInvalidate();
-                }
-            }
-        }, showTimeMillisecond);
-        invalidate();
-    }
-
-    /**
-     * remove All <a href="https://github.com/anastr/SpeedView/wiki/Notes">Notes</a>.
-     */
-    public void removeAllNotes() {
-        notes.clear();
-        invalidate();
-    }
 
     /**
      * draw minSpeedText and maxSpeedText at default Position.
