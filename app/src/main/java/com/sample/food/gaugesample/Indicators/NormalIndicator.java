@@ -3,7 +3,9 @@ package com.sample.food.gaugesample.Indicators;
 import android.content.Context;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.RectF;
 
 /**
  * this Library build By Anas Altair
@@ -38,9 +40,10 @@ public class NormalIndicator extends Indicator<NormalIndicator> {
         float indicatorBottom = getViewSize()*2f/3f - getViewSize()/16;
         indicatorPath.lineTo(getCenterX() - getIndicatorWidth(), indicatorBottom);
         indicatorPath.lineTo(getCenterX() + getIndicatorWidth(), indicatorBottom);
+        indicatorPaint.setShadowLayer(10, 10, 20, Color.GRAY);
 //        RectF rectF = new RectF(getCenterX() - getIndicatorWidth(), indicatorBottom - getIndicatorWidth()
 //                , getCenterX() + getIndicatorWidth(), indicatorBottom + getIndicatorWidth());
-//        indicatorPath.addArc(rectF, 0f, 30f);
+//        indicatorPath.addArc(rectF, 0f, 180f);
 
         indicatorPaint.setColor(getIndicatorColor());
     }

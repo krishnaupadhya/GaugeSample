@@ -11,7 +11,6 @@ import android.util.AttributeSet;
 import com.sample.food.gaugesample.Indicators.ImageIndicator;
 import com.sample.food.gaugesample.Indicators.Indicator;
 import com.sample.food.gaugesample.Indicators.NormalIndicator;
-import com.sample.food.gaugesample.util.OnPrintTickLabel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,13 +44,11 @@ public abstract class Speedometer extends Gauge {
     private int cutPadding = 0 ;
 
     /** ticks values(speed values) to draw */
-    private List<Integer> ticks = new ArrayList<>();
+    //private List<Integer> ticks = new ArrayList<>();
     /** to rotate tick label */
     private boolean tickRotation = true;
     private float initTickPadding = 0;
     private int tickPadding = (int) (getSpeedometerWidth() + dpTOpx(3f));
-    private OnPrintTickLabel onPrintTickLabel;
-
     public Speedometer(Context context) {
         this(context, null);
     }
@@ -95,7 +92,6 @@ public abstract class Speedometer extends Gauge {
         endDegree = a.getInt(R.styleable.Speedometer_sv_endDegree, endDegree);
         setIndicatorWidth(a.getDimension(R.styleable.Speedometer_sv_indicatorWidth, indicator.getIndicatorWidth()));
         cutPadding = (int) a.getDimension(R.styleable.Speedometer_sv_cutPadding, cutPadding);
-        setTickNumber(a.getInteger(R.styleable.Speedometer_sv_tickNumber, ticks.size()));
         tickRotation = a.getBoolean(R.styleable.Speedometer_sv_tickRotation, tickRotation);
         tickPadding = (int) a.getDimension(R.styleable.Speedometer_sv_tickPadding, tickPadding);
         setIndicatorColor(a.getColor(R.styleable.Speedometer_sv_indicatorColor, indicator.getIndicatorColor()));
@@ -365,7 +361,6 @@ public abstract class Speedometer extends Gauge {
     /**
      * change the start of speedometer (at {@link #minSpeed}).<br>
      * this method will recreate ticks, and if you have set custom tick,
-     * it will be removed, by calling {@link #setTickNumber(int)} method.
      * @param startDegree the start of speedometer.
      * @throws IllegalArgumentException if {@code startDegree} negative.
      * @throws IllegalArgumentException if {@code startDegree >= endDegree}.
@@ -382,7 +377,6 @@ public abstract class Speedometer extends Gauge {
     /**
      * change the end of speedometer (at {@link #maxSpeed}).<br>
      * this method will recreate ticks, and if you have set custom tick,
-     * it will be removed, by calling {@link #setTickNumber(int)} method.
      * @param endDegree the end of speedometer.
      * @throws IllegalArgumentException if {@code endDegree} negative.
      * @throws IllegalArgumentException if {@code endDegree <= startDegree}.
@@ -395,7 +389,6 @@ public abstract class Speedometer extends Gauge {
     /**
      * change start and end of speedometer.<br>
      * this method will recreate ticks, and if you have set custom tick,
-     * it will be removed, by calling {@link #setTickNumber(int)} method.
      * @param startDegree the start of speedometer.
      * @param endDegree the end of speedometer.
      * @throws IllegalArgumentException if {@code startDegree OR endDegree} negative.
@@ -406,14 +399,11 @@ public abstract class Speedometer extends Gauge {
         this.startDegree = startDegree;
         this.endDegree = endDegree;
         checkStartAndEndDegree();
-        if (ticks.size() != 0)
-            setTickNumber(ticks.size());
         cancelSpeedAnimator();
         degree = getDegreeAtSpeed(getSpeed());
         if (!isAttachedToWindow())
             return;
         updateBackgroundBitmap();
-        tremble();
         invalidate();
     }
 
@@ -473,37 +463,6 @@ public abstract class Speedometer extends Gauge {
         c.restore();
     }
 
-    /**
-     * draw speed value at each tick point.
-     * @param c canvas to draw.
-     */
-    protected void drawTicks(Canvas c) {
-        if(ticks.size() == 0)
-            return;
-
-        for (int i=0; i < ticks.size(); i++) {
-            float d = getDegreeAtSpeed(ticks.get(i)) + 90f;
-            c.save();
-            c.rotate(d, getSize() *.5f, getSize() *.5f);
-            if (!tickRotation) {
-                c.save();
-                c.rotate(-d, getSize() *.5f
-                        , initTickPadding + textPaint.getTextSize() + getPadding() + tickPadding);
-            }
-
-            String tickLabel;
-            if (onPrintTickLabel != null)
-                tickLabel = onPrintTickLabel.getTickLabel(i, ticks.get(i));
-            else
-                tickLabel = String.format(getLocale(), "%d", ticks.get(i));
-            c.drawText( tickLabel, getSize() *.5f
-                    , initTickPadding + textPaint.getTextSize() + getPadding() + tickPadding, textPaint);
-            if (!tickRotation)
-                c.restore();
-            c.restore();
-        }
-    }
-
     public float getIndicatorWidth() {
         return indicator.getIndicatorWidth();
     }
@@ -551,141 +510,6 @@ public abstract class Speedometer extends Gauge {
         if(!isAttachedToWindow())
             return;
         this.indicator.setTargetSpeedometer(this);
-        invalidate();
-    }
-
-    /**
-     * @return number of tick points of speed value's label.
-     */
-    public int getTickNumber() {
-        return ticks.size();
-    }
-
-    /**
-     * to add speed value label at each tick point between {@link #maxSpeed}
-     * and {@link #minSpeed}.
-     * @param tickNumber number of tick points.
-     * @throws IllegalArgumentException if {@code tickNumber < 0}.
-     */
-    public void setTickNumber(int tickNumber) {
-        if (tickNumber < 0)
-            throw new IllegalArgumentException("tickNumber mustn't be negative");
-        List<Integer> ticks = new ArrayList<>();
-        // tick each degree
-        float tickEach = tickNumber != 1 ? (float)(endDegree - startDegree) / (float)(tickNumber-1) : endDegree +1f;
-        for (int i=0; i < tickNumber; i++) {
-            int tick = (int)getSpeedAtDegree(tickEach * i + getStartDegree());
-            ticks.add(tick);
-        }
-        setTicks(ticks);
-    }
-
-    /**
-     * @return ticks values as list, don't edit the list.
-     */
-    public List<Integer> getTicks() {
-        return ticks;
-    }
-
-    /**
-     * to add custom speed value label at each tick point between {@link #maxSpeed}
-     * and {@link #minSpeed}.
-     * @param ticks custom ticks values (speed values).
-     * @throws IllegalArgumentException if one of {@link #ticks} out of range [{@link #minSpeed}, {@link #maxSpeed}].
-     * @throws IllegalArgumentException If {@link #ticks} are not ascending.
-     */
-    public void setTicks(Integer... ticks) {
-        setTicks(Arrays.asList(ticks));
-    }
-
-    /**
-     * to add custom speed value label at each tick point between {@link #maxSpeed}
-     * and {@link #minSpeed}.
-     * @param ticks custom ticks values (speed values).
-     * @throws IllegalArgumentException if one of {@link #ticks} out of range [{@link #minSpeed}, {@link #maxSpeed}].
-     * @throws IllegalArgumentException If {@link #ticks} are not ascending.
-     */
-    public void setTicks(List<Integer> ticks) {
-        this.ticks.clear();
-        this.ticks.addAll(ticks);
-        checkTicks();
-        if (ticks.size() > 0)
-            textPaint.setTextAlign(Paint.Align.CENTER);
-        if (!isAttachedToWindow())
-            return;
-        updateBackgroundBitmap();
-        invalidate();
-    }
-
-    private void checkTicks() {
-        int lastTick = getMinSpeed() -1;
-        for (int tick : ticks) {
-            if (lastTick >= tick)
-                throw new IllegalArgumentException("ticks must be ascending order");
-            lastTick = tick;
-            if (tick < getMinSpeed() || tick > getMaxSpeed())
-                throw new IllegalArgumentException("ticks must be between [minSpeed, maxSpeed] !!");
-        }
-    }
-
-    /**
-     * @return whether tick label rotate.
-     */
-    public boolean isTickRotation() {
-        return tickRotation;
-    }
-
-    /**
-     * to make speed value's label rotate at each tick.
-     * @param tickRotation with rotation.
-     */
-    public void setTickRotation(boolean tickRotation) {
-        this.tickRotation = tickRotation;
-        if (!isAttachedToWindow())
-            return;
-        updateBackgroundBitmap();
-        invalidate();
-    }
-
-    /**
-     * @return tick label's padding.
-     */
-    public int getTickPadding() {
-        return tickPadding;
-    }
-
-    /**
-     * @param tickPadding tick label's padding.
-     */
-    public void setTickPadding(int tickPadding) {
-        this.tickPadding = tickPadding;
-        if (!isAttachedToWindow())
-            return;
-        updateBackgroundBitmap();
-        invalidate();
-    }
-
-    protected float getInitTickPadding() {
-        return initTickPadding;
-    }
-
-    /**
-     * @param initTickPadding first padding, set by speedometer
-     *                        , this method will not redraw background bitmap.
-     */
-    protected void setInitTickPadding(float initTickPadding) {
-        this.initTickPadding = initTickPadding;
-    }
-
-    /**
-     * create custom Tick label.
-     * @param onPrintTickLabel maybe null, The callback that will run.
-     */
-    public void setOnPrintTickLabel(OnPrintTickLabel onPrintTickLabel) {
-        this.onPrintTickLabel = onPrintTickLabel;
-        if (!isAttachedToWindow())
-            return;
-        updateBackgroundBitmap();
         invalidate();
     }
 
@@ -762,7 +586,6 @@ public abstract class Speedometer extends Gauge {
             return;
         requestLayout();
         updateBackgroundBitmap();
-        tremble();
         invalidate();
     }
 
