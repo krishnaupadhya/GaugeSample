@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-import com.sample.food.gaugesample.Speedometer;
+import com.sample.food.gaugesample.SpeedView;
 
 /**
  * this Library build By Anas Altair
@@ -51,7 +51,7 @@ public abstract class Indicator<I extends Indicator> {
      *
      * @param speedometer target speedometer.
      */
-    public void onSizeChange(Speedometer speedometer) {
+    public void onSizeChange(SpeedView speedometer) {
         setTargetSpeedometer(speedometer);
     }
 
@@ -61,12 +61,12 @@ public abstract class Indicator<I extends Indicator> {
      *
      * @param speedometer target speedometer.
      */
-    public void setTargetSpeedometer(Speedometer speedometer) {
+    public void setTargetSpeedometer(SpeedView speedometer) {
         updateData(speedometer);
         updateIndicator();
     }
 
-    private void updateData(Speedometer speedometer) {
+    private void updateData(SpeedView speedometer) {
         this.viewSize = speedometer.getSize();
         this.speedometerWidth = speedometer.getSpeedometerWidth();
         this.padding = speedometer.getPadding();

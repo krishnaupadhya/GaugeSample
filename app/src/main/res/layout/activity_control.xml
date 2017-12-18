@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:ignore="HardcodedText">
 
     <com.sample.food.gaugesample.SpeedView
@@ -11,8 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
-        android:layout_centerHorizontal="true"
-        app:sv_speedometerWidth="35dp"/>
+        android:layout_centerHorizontal="true"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -51,13 +49,6 @@
                     android:onClick="setSpeed"
                     android:text="Go" />
             </LinearLayout>
-
-            <CheckBox
-                android:id="@+id/withTremble"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="with Tremble"/>
 
         </LinearLayout>
 
