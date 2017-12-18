@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Path;
-import android.graphics.RectF;
 
 /**
  * this Library build By Anas Altair
@@ -35,13 +34,13 @@ public class NormalIndicator extends Indicator<NormalIndicator> {
     @Override
     protected void updateIndicator() {
         indicatorPath.reset();
-        indicatorPath.moveTo(getCenterX(), getPadding());
-        float indicatorBottom = getViewSize()*2f/3f + getPadding();
+        indicatorPath.moveTo(getCenterX(), getViewSize()/14);
+        float indicatorBottom = getViewSize()*2f/3f - getViewSize()/16;
         indicatorPath.lineTo(getCenterX() - getIndicatorWidth(), indicatorBottom);
         indicatorPath.lineTo(getCenterX() + getIndicatorWidth(), indicatorBottom);
-        RectF rectF = new RectF(getCenterX() - getIndicatorWidth(), indicatorBottom - getIndicatorWidth()
-                , getCenterX() + getIndicatorWidth(), indicatorBottom + getIndicatorWidth());
-        indicatorPath.addArc(rectF, 0f, 180f);
+//        RectF rectF = new RectF(getCenterX() - getIndicatorWidth(), indicatorBottom - getIndicatorWidth()
+//                , getCenterX() + getIndicatorWidth(), indicatorBottom + getIndicatorWidth());
+//        indicatorPath.addArc(rectF, 0f, 30f);
 
         indicatorPaint.setColor(getIndicatorColor());
     }

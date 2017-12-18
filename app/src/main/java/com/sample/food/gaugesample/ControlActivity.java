@@ -18,8 +18,6 @@ public class ControlActivity extends AppCompatActivity {
 
     SpeedView speedView;
     SeekBar seekBar;
-    EditText maxSpeed, speedometerWidth;
-    CheckBox withTremble;
     TextView textSpeed;
 
     @Override
@@ -30,17 +28,6 @@ public class ControlActivity extends AppCompatActivity {
         speedView = (SpeedView) findViewById(R.id.awesomeSpeedometer);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         textSpeed = (TextView) findViewById(R.id.textSpeed);
-        maxSpeed = (EditText) findViewById(R.id.maxSpeed);
-        speedometerWidth = (EditText) findViewById(R.id.speedometerWidth);
-        withTremble = (CheckBox) findViewById(R.id.withTremble);
-
-        withTremble.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                speedView.setWithTremble(isChecked);
-            }
-        });
-
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -66,85 +53,11 @@ public class ControlActivity extends AppCompatActivity {
         }
     }
 
-    public void imageIndicator(View view) {
-
-    }
-
     public void setSpeed(View view) {
         speedView.speedTo(seekBar.getProgress());
     }
 
-    public void setMaxSpeed(View view) {
-        try {
-            int max = Integer.parseInt(maxSpeed.getText().toString());
-            seekBar.setMax(max);
-            speedView.setMaxSpeed(max);
-        } catch (Exception e) {
-            maxSpeed.setError(e.getMessage());
-        }
-    }
 
-    public void setSpeedometerWidth(View view) {
-        try {
-            float width = Float.parseFloat(speedometerWidth.getText().toString());
-            speedView.setSpeedometerWidth(width);
-        } catch (Exception e) {
-            speedometerWidth.setError(e.getMessage());
-        }
-    }
 
-    public void setSpeedTextSize(View view) {
-        EditText speedTextSize = (EditText) findViewById(R.id.speedTextSize);
-        try {
-            float size = Float.parseFloat(speedTextSize.getText().toString());
-            speedView.setSpeedTextSize(size);
-        } catch (Exception e) {
-            speedTextSize.setError(e.getMessage());
-        }
-    }
 
-    public void setIndicatorColor(View view) {
-        EditText indicatorColor = (EditText) findViewById(R.id.indicatorColor);
-        try {
-            speedView.setIndicatorColor(Color.parseColor(indicatorColor.getText().toString()));
-        } catch (Exception e) {
-            indicatorColor.setError(e.getMessage());
-        }
-    }
-
-    public void setCenterCircleColor(View view) {
-        EditText centerCircleColor = (EditText) findViewById(R.id.centerCircleColor);
-        try {
-            speedView.setCenterCircleColor(Color.parseColor(centerCircleColor.getText().toString()));
-        } catch (Exception e) {
-            centerCircleColor.setError(e.getMessage());
-        }
-    }
-
-    public void setLowSpeedColor(View view) {
-        EditText lowSpeedColor = (EditText) findViewById(R.id.lowSpeedColor);
-        try {
-            speedView.setLowSpeedColor(Color.parseColor(lowSpeedColor.getText().toString()));
-        } catch (Exception e) {
-            lowSpeedColor.setError(e.getMessage());
-        }
-    }
-
-    public void setMediumSpeedColor(View view) {
-        EditText mediumSpeedColor = (EditText) findViewById(R.id.mediumSpeedColor);
-        try {
-            speedView.setMediumSpeedColor(Color.parseColor(mediumSpeedColor.getText().toString()));
-        } catch (Exception e) {
-            mediumSpeedColor.setError(e.getMessage());
-        }
-    }
-
-    public void setHighSpeedColor(View view) {
-        EditText highSpeedColor = (EditText) findViewById(R.id.highSpeedColor);
-        try {
-            speedView.setHighSpeedColor(Color.parseColor(highSpeedColor.getText().toString()));
-        } catch (Exception e) {
-            highSpeedColor.setError(e.getMessage());
-        }
-    }
 }

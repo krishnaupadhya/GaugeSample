@@ -111,8 +111,8 @@ public class SpeedView extends Speedometer {
 
 
 //        canvas.drawBitmap(bitmap, (this.getWidth() / 2) - riskPosition, riskPosition, null);
-        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 18f, outerCirclePaint);
-        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 36f, innerCirclePaint);
+        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 16f, outerCirclePaint);
+        canvas.drawCircle(getSize() * .5f, getSize() * .5f, getWidthPa() / 40f, innerCirclePaint);
         // canvas.drawArc(speedometerRect,180,180+360,true,outerCirclePaint);
 
         //drawNotes(canvas);

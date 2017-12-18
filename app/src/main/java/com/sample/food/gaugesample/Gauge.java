@@ -40,7 +40,7 @@ public abstract class Gauge extends View {
             unitTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     /** the text after speedText */
     private String unit = "Km/h";
-    private boolean withTremble = true;
+    private boolean withTremble = false;
 
     /** the max range in speedometer, {@code default = 100} */
     private int maxSpeed = 100;
