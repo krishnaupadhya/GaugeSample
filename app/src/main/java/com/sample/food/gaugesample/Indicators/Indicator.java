@@ -4,12 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-import com.sample.food.gaugesample.SpeedView;
+import com.sample.food.gaugesample.RiskView;
 
-/**
- * this Library build By Anas Altair
- * see it on <a href="https://github.com/anastr/SpeedView">GitHub</a>
- */
 @SuppressWarnings("unchecked,unused,WeakerAccess")
 public abstract class Indicator<I extends Indicator> {
 
@@ -51,7 +47,7 @@ public abstract class Indicator<I extends Indicator> {
      *
      * @param speedometer target speedometer.
      */
-    public void onSizeChange(SpeedView speedometer) {
+    public void onSizeChange(RiskView speedometer) {
         setTargetSpeedometer(speedometer);
     }
 
@@ -61,14 +57,14 @@ public abstract class Indicator<I extends Indicator> {
      *
      * @param speedometer target speedometer.
      */
-    public void setTargetSpeedometer(SpeedView speedometer) {
+    public void setTargetSpeedometer(RiskView speedometer) {
         updateData(speedometer);
         updateIndicator();
     }
 
-    private void updateData(SpeedView speedometer) {
+    private void updateData(RiskView speedometer) {
         this.viewSize = speedometer.getSize();
-        this.speedometerWidth = speedometer.getSpeedometerWidth();
+        this.speedometerWidth = speedometer.getRsikometerWidth();
         this.padding = speedometer.getPadding();
         this.inEditMode = speedometer.isInEditMode();
     }

@@ -41,7 +41,6 @@ public abstract class RiskoMeterView extends View {
      * to contain all drawing that doesn't change
      */
     protected Bitmap backgroundBitmap;
-
     private Paint backgroundBitmapPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private int padding = 0;

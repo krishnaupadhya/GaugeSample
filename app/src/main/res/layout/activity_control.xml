@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     tools:ignore="HardcodedText">
 
-    <com.sample.food.gaugesample.SpeedView
-        android:id="@+id/awesomeSpeedometer"
+    <com.sample.food.gaugesample.RiskView
+        android:id="@+id/awesomeRiskometer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
@@ -15,42 +15,49 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/awesomeSpeedometer" >
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        android:layout_below="@+id/awesomeRiskometer" >
 
             <LinearLayout
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-                <SeekBar
-                    android:id="@+id/seekBar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:max="100"
-                    android:layout_gravity="center_vertical"/>
-
-                <TextView
-                    android:id="@+id/textSpeed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    tools:text="50" />
 
                 <Button
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="setSpeed"
-                    android:text="Go" />
+                    android:onClick="lowRisk"
+                    android:text="lowRisk" />
+
+                <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="lowModerateRisk"
+                    android:text="lowModerateRisk" />
+
+                <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="mediumRisk"
+                    android:text="mediumRisk" />
+
+                <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="moderatelyHighRisk"
+                    android:text="moderatelyHighRisk" />
+
+                <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="highRisk"
+                    android:text="highRisk" />
             </LinearLayout>
 
-        </LinearLayout>
 
     </ScrollView>
 

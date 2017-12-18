@@ -10,28 +10,21 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
-import com.sample.food.gaugesample.Indicators.ImageIndicator;
 import com.sample.food.gaugesample.Indicators.Indicator;
 import com.sample.food.gaugesample.Indicators.NormalIndicator;
 
-public class SpeedView extends RiskoMeterView {
+public class RiskView extends RiskoMeterView {
 
     private Paint outerCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG),
             innerCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG),
-            speedometerPaint = new Paint(Paint.ANTI_ALIAS_FLAG),
+            riskometerPaint = new Paint(Paint.ANTI_ALIAS_FLAG),
             markPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private Indicator indicator;
     private Paint circleBackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private float speedometerWidth = dpTOpx(30f);
+    private float rsikometerWidth = dpTOpx(30f);
 
-    private int markColor = Color.WHITE
-            , lowSpeedColor = getResources().getColor(R.color.low_color)
-            ,lowMidSpeedColor = getResources().getColor(R.color.low_mid_color)
-            ,mediumSpeedColor = getResources().getColor(R.color.mid_color)
-            ,highMidSpeedColor = getResources().getColor(R.color.mid_high_color)
-            ,highSpeedColor = getResources().getColor(R.color.high_color)
-            ,backgroundCircleColor = Color.WHITE;
+    private int markColor = Color.WHITE, lowRiskColor = getResources().getColor(R.color.low_color), ModerateLowRiskColor = getResources().getColor(R.color.low_mid_color), mediumRiskColor = getResources().getColor(R.color.mid_color), ModeratelyHighRiskColor = getResources().getColor(R.color.mid_high_color), highRiskColor = getResources().getColor(R.color.high_color), backgroundCircleColor = Color.WHITE;
 
     private int startDegree = 180, endDegree = 180 + 180;
     /**
@@ -39,40 +32,40 @@ public class SpeedView extends RiskoMeterView {
      */
     private float degree = startDegree;
 
-    private RectF speedometerRect = new RectF();
+    private RectF riskometerRect = new RectF();
     private float ARC_PADDING = 5f;
     private float riskPosition;
     private float riskPercentage = 0f;
     /**
-     * low speed area
+     * low risk area
      */
-    private int lowSpeedPercent = 20;
+    private int lowRiskPercent = 20;
     /**
-     * low speed area
+     * low risk area
      */
-    private int lowMidSpeedPercent = 40;
+    private int moderateLowRiskPercent = 40;
     /**
-     * medium speed area
+     * medium risk area
      */
-    private int mediumSpeedPercent = 60;
+    private int mediumRiskPercent = 60;
     /**
-     * medium speed area
+     * medium risk area
      */
-    private int mediumHighSpeedPercent = 80;
+    private int moderatelyHighRiskPercent = 80;
 
-    private int highSpeedPercent = 100;
+    private int highRiskPercent = 100;
 
-    public SpeedView(Context context) {
+    public RiskView(Context context) {
         this(context, null);
         init();
     }
 
-    public SpeedView(Context context, AttributeSet attrs) {
+    public RiskView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
         init();
     }
 
-    public SpeedView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RiskView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -83,7 +76,7 @@ public class SpeedView extends RiskoMeterView {
         degree = startDegree;
         checkStartAndEndDegree();
         setBackgroundCircleColor(Color.TRANSPARENT);
-        speedometerPaint.setStyle(Paint.Style.STROKE);
+        riskometerPaint.setStyle(Paint.Style.STROKE);
         markPaint.setStyle(Paint.Style.STROKE);
         outerCirclePaint.setColor(getResources().getColor(R.color.center_outer_circle));
         innerCirclePaint.setColor(Color.WHITE);
@@ -119,14 +112,14 @@ public class SpeedView extends RiskoMeterView {
 
 
     private void initDraw() {
-        speedometerPaint.setStrokeWidth(getSpeedometerWidth());
+        riskometerPaint.setStrokeWidth(getRsikometerWidth());
         markPaint.setColor(getMarkColor());
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        degree = getDegreeAtSpeed(getCurrentRiskPercentage());
+        degree = getDegreeAtRisk(getCurrentRiskPercentage());
         initDraw();
 
         //draw indicator line
@@ -140,7 +133,7 @@ public class SpeedView extends RiskoMeterView {
 
     /**
      * draw indicator at correct {@link #degree},
-     * this method must call in subSpeedometer's {@code onDraw} method.
+     * this method must call in subRiskometer's {@code onDraw} method.
      *
      * @param canvas view canvas to draw.
      */
@@ -156,44 +149,44 @@ public class SpeedView extends RiskoMeterView {
         Canvas c = createBackgroundBitmapCanvas();
         initDraw();
 
-        riskPosition = getSpeedometerWidth() * .5f + getWidth() / 8;
-        speedometerRect.set(riskPosition, riskPosition, getSize() - riskPosition, getSize() - riskPosition);
+        riskPosition = getRsikometerWidth() * .5f + getWidth() / 8;
+        riskometerRect.set(riskPosition, riskPosition, getSize() - riskPosition, getSize() - riskPosition);
 
-        speedometerPaint.setColor(getHighSpeedColor());
-        c.drawArc(speedometerRect, getStartDegree(), getEndDegree() - getStartDegree(), false, speedometerPaint);
+        riskometerPaint.setColor(getHighRiskColor());
+        c.drawArc(riskometerRect, getStartDegree(), getEndDegree() - getStartDegree(), false, riskometerPaint);
 
-        speedometerPaint.setColor(Color.WHITE);
-        c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getModeratelyOffset() + ARC_PADDING, false, speedometerPaint);
+        riskometerPaint.setColor(Color.WHITE);
+        c.drawArc(riskometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getModeratelyOffset() + ARC_PADDING, false, riskometerPaint);
 
-        speedometerPaint.setColor(getMediumHighSpeedColor());
-        c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getModeratelyOffset(), false, speedometerPaint);
+        riskometerPaint.setColor(getModeratelyHighRiskColor());
+        c.drawArc(riskometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getModeratelyOffset(), false, riskometerPaint);
 
-        speedometerPaint.setColor(Color.WHITE);
-        c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getMediumRiskOffset() + ARC_PADDING, false, speedometerPaint);
+        riskometerPaint.setColor(Color.WHITE);
+        c.drawArc(riskometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getMediumRiskOffset() + ARC_PADDING, false, riskometerPaint);
 
-        speedometerPaint.setColor(getMediumSpeedColor());
-        c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getMediumRiskOffset(), false, speedometerPaint);
+        riskometerPaint.setColor(getMediumRiskColor());
+        c.drawArc(riskometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getMediumRiskOffset(), false, riskometerPaint);
 
-        speedometerPaint.setColor(Color.WHITE);
-        c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getModerateLowRiskOffset() + ARC_PADDING, false, speedometerPaint);
+        riskometerPaint.setColor(Color.WHITE);
+        c.drawArc(riskometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getModerateLowRiskOffset() + ARC_PADDING, false, riskometerPaint);
 
-        speedometerPaint.setColor(getLowMidSpeedColor());
-        c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getModerateLowRiskOffset(), false, speedometerPaint);
+        riskometerPaint.setColor(getModerateLowRiskColor());
+        c.drawArc(riskometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getModerateLowRiskOffset(), false, riskometerPaint);
 
-        speedometerPaint.setColor(Color.WHITE);
-        c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getLowRiskOffset() + ARC_PADDING, false, speedometerPaint);
+        riskometerPaint.setColor(Color.WHITE);
+        c.drawArc(riskometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getLowRiskOffset() + ARC_PADDING, false, riskometerPaint);
 
 
-        speedometerPaint.setColor(getLowSpeedColor());
-        c.drawArc(speedometerRect, getStartDegree()
-                , (getEndDegree() - getStartDegree()) * getLowRiskOffset(), false, speedometerPaint);
+        riskometerPaint.setColor(getLowRiskColor());
+        c.drawArc(riskometerRect, getStartDegree()
+                , (getEndDegree() - getStartDegree()) * getLowRiskOffset(), false, riskometerPaint);
 
         updateTextView(c, riskPosition);
         c.save();
@@ -202,6 +195,7 @@ public class SpeedView extends RiskoMeterView {
 
     /**
      * draw risk type text views at respective positions
+     *
      * @param c
      * @param risk
      */
@@ -222,16 +216,16 @@ public class SpeedView extends RiskoMeterView {
         c.drawText(getContext().getString(R.string.mid_risk), risk * 2.3f, risk - (0.5f * risk), paint);
         c.drawText(getContext().getString(R.string.mid_high_risk), risk * 4f, risk, paint);
         c.drawText(getContext().getString(R.string.high_risk), risk * 4.9f, risk * 2, paint);
-        if (riskPercentage < lowSpeedPercent) {
+        if (riskPercentage < lowRiskPercent) {
             paint.setColor(getResources().getColor(R.color.low_color));
             c.drawText(getContext().getString(R.string.low_risk), risk - (0.7f * risk), risk * 2, paint);
-        } else if (riskPercentage < lowMidSpeedPercent) {
+        } else if (riskPercentage < moderateLowRiskPercent) {
             paint.setColor(getResources().getColor(R.color.low_mid_color));
             c.drawText(getContext().getString(R.string.low_mid_risk), risk - (0.7f * risk), risk - (0.1f * risk), paint);
-        } else if (riskPercentage < mediumSpeedPercent) {
+        } else if (riskPercentage < mediumRiskPercent) {
             paint.setColor(getResources().getColor(R.color.mid_color));
             c.drawText(getContext().getString(R.string.mid_risk), risk * 2.3f, risk - (0.5f * risk), paint);
-        } else if (riskPercentage < mediumHighSpeedPercent) {
+        } else if (riskPercentage < moderatelyHighRiskPercent) {
             paint.setColor(getResources().getColor(R.color.mid_high_color));
             c.drawText(getContext().getString(R.string.mid_high_risk), risk * 4f, risk, paint);
         } else {
@@ -240,28 +234,42 @@ public class SpeedView extends RiskoMeterView {
         }
     }
 
-    @Override
-    public void RiskTo(float risk) {
-        setRiskPercentage(risk);
+    public void RiskTo(RISKMODE riskMode) {
+        float riskPercentage = getRiskPercentage(riskMode);
+        setRiskPercentage(riskPercentage);
         updateBackgroundBitmap();
         super.RiskTo(riskPercentage);
     }
 
-    private void setRiskPercentage(float speed) {
-        if (speed < lowSpeedPercent)
+    private float getRiskPercentage(RISKMODE riskMode) {
+        if (riskMode == RISKMODE.LOW_RISK_MODE)
+            return 10f;
+        else if (riskMode == RISKMODE.LOW_MODERATE_RISK_MODE)
+            return 30f;
+        else if (riskMode == RISKMODE.MEDIUM_RISK_MODE)
+            return 50f;
+        else if (riskMode == RISKMODE.MODERATELY_HIGH_RISK_MODE)
+            return 70f;
+        else if (riskMode == RISKMODE.HIGH_RISK_MODE)
+            return 90f;
+        else
+            return 100f;
+    }
+
+    private void setRiskPercentage(float risk) {
+        if (risk < lowRiskPercent)
             this.riskPercentage = 10f;
-        else if (speed < lowMidSpeedPercent)
+        else if (risk < moderateLowRiskPercent)
             this.riskPercentage = 30f;
-        else if (speed < mediumSpeedPercent)
+        else if (risk < mediumRiskPercent)
             this.riskPercentage = 50f;
-        else if (speed < mediumHighSpeedPercent)
+        else if (risk < moderatelyHighRiskPercent)
             this.riskPercentage = 70f;
-        else if (speed < highSpeedPercent)
+        else if (risk < highRiskPercent)
             this.riskPercentage = 90f;
         else
             this.riskPercentage = 100f;
     }
-
 
 
     /**
@@ -281,11 +289,11 @@ public class SpeedView extends RiskoMeterView {
 
 
     /**
-     * @param speed to know the degree at it.
-     * @return correct Degree at that speed.
+     * @param risk to know the degree at it.
+     * @return correct Degree at that risk.
      */
-    protected float getDegreeAtSpeed(float speed) {
-        return (speed - getMinRiskPercentage()) * (endDegree - startDegree) / (getMaxRiskPercentage() - getMinRiskPercentage()) + startDegree;
+    protected float getDegreeAtRisk(float risk) {
+        return (risk - getMinRiskPercentage()) * (endDegree - startDegree) / (getMaxRiskPercentage() - getMinRiskPercentage()) + startDegree;
     }
 
     public int getIndicatorColor() {
@@ -294,7 +302,6 @@ public class SpeedView extends RiskoMeterView {
 
     /**
      * change indicator's color,
-     * this option will ignore when using {@link ImageIndicator}.
      *
      * @param indicatorColor new color.
      */
@@ -311,7 +318,7 @@ public class SpeedView extends RiskoMeterView {
 
     /**
      * change the color of all marks (if exist),
-     * <b>this option is not available for all Speedometers</b>.
+     * <b>this option is not available for all Riskometers</b>.
      *
      * @param markColor new color.
      */
@@ -322,85 +329,85 @@ public class SpeedView extends RiskoMeterView {
         invalidate();
     }
 
-    public int getLowSpeedColor() {
-        return lowSpeedColor;
+    public int getLowRiskColor() {
+        return lowRiskColor;
     }
 
     /**
      * change the color of Low Section.
      *
-     * @param lowSpeedColor new color.
+     * @param lowRiskColor new color.
      */
-    public void setLowSpeedColor(int lowSpeedColor) {
-        this.lowSpeedColor = lowSpeedColor;
+    public void setLowRiskColor(int lowRiskColor) {
+        this.lowRiskColor = lowRiskColor;
         if (!isAttachedToWindow())
             return;
         updateBackgroundBitmap();
         invalidate();
     }
 
-    public int getLowMidSpeedColor() {
-        return lowMidSpeedColor;
+    public int getModerateLowRiskColor() {
+        return ModerateLowRiskColor;
     }
 
     /**
      * change the color of Low Section.
      *
-     * @param lowMidSpeedColor new color.
+     * @param moderateLowRiskColor new color.
      */
-    public void setLowMidSpeedColor(int lowMidSpeedColor) {
-        this.lowMidSpeedColor = lowMidSpeedColor;
+    public void setModerateLowRiskColor(int moderateLowRiskColor) {
+        this.ModerateLowRiskColor = moderateLowRiskColor;
         if (!isAttachedToWindow())
             return;
         updateBackgroundBitmap();
         invalidate();
     }
 
-    public int getMediumSpeedColor() {
-        return mediumSpeedColor;
+    public int getMediumRiskColor() {
+        return mediumRiskColor;
     }
 
     /**
      * change the color of Medium Section.
      *
-     * @param mediumSpeedColor new color.
+     * @param mediumRiskColor new color.
      */
-    public void setMediumSpeedColor(int mediumSpeedColor) {
-        this.mediumSpeedColor = mediumSpeedColor;
+    public void setMediumRiskColor(int mediumRiskColor) {
+        this.mediumRiskColor = mediumRiskColor;
         if (!isAttachedToWindow())
             return;
         updateBackgroundBitmap();
         invalidate();
     }
 
-    public int getMediumHighSpeedColor() {
-        return highMidSpeedColor;
+    public int getModeratelyHighRiskColor() {
+        return ModeratelyHighRiskColor;
     }
 
     /**
      * change the color of Medium Section.
      *
-     * @param highMidSpeedColor new color.
+     * @param highMidRiskColor new color.
      */
-    public void setMediumHighSpeedColor(int highMidSpeedColor) {
-        this.highMidSpeedColor = highMidSpeedColor;
+    public void setMediumHighRiskColor(int highMidRiskColor) {
+        this.ModeratelyHighRiskColor = highMidRiskColor;
         if (!isAttachedToWindow())
             return;
         updateBackgroundBitmap();
         invalidate();
     }
 
-    public int getHighSpeedColor() {
-        return highSpeedColor;
+    public int getHighRiskColor() {
+        return highRiskColor;
     }
 
     /**
      * change the color of High Section.
      *
-     * @param highSpeedColor new color.
+     * @param highRiskColor new color.
      */
-    public void setHighSpeedColor(int highSpeedColor) {
-        this.highSpeedColor = highSpeedColor;
+    public void setHighRiskColor(int highRiskColor) {
+        this.highRiskColor = highRiskColor;
         if (!isAttachedToWindow())
             return;
         updateBackgroundBitmap();
@@ -427,8 +434,8 @@ public class SpeedView extends RiskoMeterView {
         invalidate();
     }
 
-    public float getSpeedometerWidth() {
-        return speedometerWidth;
+    public float getRsikometerWidth() {
+        return rsikometerWidth;
     }
 
     protected int getStartDegree() {
@@ -440,10 +447,19 @@ public class SpeedView extends RiskoMeterView {
     }
 
     /**
-     * @return size of speedometer.
+     * @return size of Riskometer.
      */
     public int getSize() {
         return Math.max(getWidth(), getHeight());
+    }
+
+    public enum RISKMODE {
+        LOW_RISK_MODE,
+        LOW_MODERATE_RISK_MODE,
+        MEDIUM_RISK_MODE,
+        MODERATELY_HIGH_RISK_MODE,
+        HIGH_RISK_MODE
+
     }
 
 }

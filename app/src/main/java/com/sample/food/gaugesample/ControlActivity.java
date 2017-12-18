@@ -10,7 +10,7 @@ import java.util.Locale;
 
 public class ControlActivity extends AppCompatActivity {
 
-    SpeedView speedView;
+    RiskView riskView;
     SeekBar seekBar;
     TextView textSpeed;
 
@@ -19,35 +19,30 @@ public class ControlActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_control);
 
-        speedView = (SpeedView) findViewById(R.id.awesomeSpeedometer);
-        seekBar = (SeekBar) findViewById(R.id.seekBar);
-        textSpeed = (TextView) findViewById(R.id.textSpeed);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                textSpeed.setText(String.format(Locale.getDefault(), "%d", progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        speedView.RiskTo(12);
+        riskView = (RiskView) findViewById(R.id.awesomeRiskometer);
+        riskView.RiskTo(RiskView.RISKMODE.MEDIUM_RISK_MODE);
 
     }
 
-    public void setSpeed(View view) {
-        speedView.RiskTo(seekBar.getProgress());
+    public void lowRisk(View view) {
+        riskView.RiskTo(RiskView.RISKMODE.LOW_RISK_MODE);
     }
 
+    public void lowModerateRisk(View view) {
+        riskView.RiskTo(RiskView.RISKMODE.LOW_MODERATE_RISK_MODE);
+    }
 
+    public void mediumRisk(View view) {
+        riskView.RiskTo(RiskView.RISKMODE.MEDIUM_RISK_MODE);
+    }
+
+    public void moderatelyHighRisk(View view) {
+        riskView.RiskTo(RiskView.RISKMODE.MODERATELY_HIGH_RISK_MODE);
+    }
+
+    public void highRisk(View view) {
+        riskView.RiskTo(RiskView.RISKMODE.HIGH_RISK_MODE);
+    }
 
 
 }
